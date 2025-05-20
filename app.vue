@@ -9,7 +9,7 @@ useHead({
 <template>
   <NuxtRouteAnnouncer />
   <NuxtPwaManifest />
-  <UApp>
+  <UApp :toaster="{position: 'top-right'}">
     <NuxtLayout>
       <NuxtPage />
       <NavigationBar />
