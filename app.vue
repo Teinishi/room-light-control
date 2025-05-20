@@ -8,6 +8,7 @@ useHead({
 
 <template>
   <NuxtRouteAnnouncer />
+  <NuxtPwaManifest />
   <UApp>
     <NuxtLayout>
       <NuxtPage />
