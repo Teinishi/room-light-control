@@ -4,7 +4,7 @@ const { data: timezone } = await useFetch('/api/timezone');
 
 <template>
   <div class="h-dvh p-8 flex flex-col justify-between items-center">
-    <RichClock :timezone="timezone ?? undefined" />
+    <RichClock class="h-40 justify-center" :timezone="timezone ?? undefined" />
     <NuxtPage />
     <NavigationBar />
   </div>

@@ -21,5 +21,7 @@ const items = ref<NavigationMenuItem[]>([
 </script>
 
 <template>
-  <UNavigationMenu :items="items" collapsed />
+  <div class="py-6">
+    <UNavigationMenu :items="items" collapsed />
+  </div>
 </template>
