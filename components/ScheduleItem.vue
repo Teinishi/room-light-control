@@ -2,8 +2,10 @@
 const props = defineProps<{
   hour: number
   minute: number
-  weekday: [boolean, boolean, boolean, boolean, boolean, boolean, boolean]
+  weekday: boolean[]
 }>();
+
+const emit = defineEmits(['update:hour', 'update:minute']);
 
 const open = ref(false);
 const enabled = ref(true);
@@ -21,7 +23,21 @@ const weekdayText = computed(() => {
 <template>
   <UCard class="w-full">
     <div class="flex">
-      <div class="text-4xl grow">{{ hour }}:{{ minute }}</div>
+      <div class="grow">
+        <USlideover title="時刻を選択" side="bottom">
+          <div class="text-4xl">{{ hour }}:{{ minute }}</div>
+          <template #content>
+            <div class="w-full h-32 flex justify-center items-center">
+              <TimePicker
+                :hour="hour"
+                :minute="minute"
+                @update:hour="(v: number) => emit('update:hour', v)"
+                @update:minute="(v: number) => emit('update:minute', v)"
+              />
+            </div>
+          </template>
+        </USlideover>
+      </div>
       <div>
         <UButton
           class="rounded-full"
@@ -39,6 +55,7 @@ const weekdayText = computed(() => {
         <USwitch v-model="enabled" />
       </div>
     </div>
+
     <UCollapsible v-model:open="open">
       <template #content>
         <USkeleton class="mt-4 w-full h-20" />
