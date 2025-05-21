@@ -7,8 +7,14 @@ const props = defineProps<{
 
 const emit = defineEmits(['update:hour', 'update:minute']);
 
-const open = ref(false);
+const uiStore = useUiStore();
+
+const modalOpen = ref(false);
+const collapsibleOpen = ref(false);
 const enabled = ref(true);
+
+const hourEdit = ref(0);
+const minuteEdit = ref(0);
 
 const weekdayText = computed(() => {
   const weekdays = [...'日月火水木金土'].filter((_, i) => props.weekday[i]);
@@ -18,25 +24,50 @@ const weekdayText = computed(() => {
     return weekdays.join('、');
   }
 });
+
+watchEffect(() => {
+  if (modalOpen.value) {
+    hourEdit.value = props.hour;
+    minuteEdit.value = props.minute;
+  }
+});
+
+function updateTime() {
+  modalOpen.value = false;
+  emit('update:hour', hourEdit.value);
+  emit('update:minute', minuteEdit.value);
+}
 </script>
 
 <template>
   <UCard class="w-full">
     <div class="flex">
       <div class="grow">
-        <USlideover title="時刻を選択" side="bottom">
-          <div class="text-4xl">{{ hour }}:{{ minute }}</div>
+        <UModal v-model:open="modalOpen">
+          <span class="text-4xl">{{ hour }}:{{ minute.toString().padStart(2, '0') }}</span>
           <template #content>
-            <div class="w-full h-32 flex justify-center items-center">
+            <div class="w-full h-32 py-4 flex flex-col justify-center items-center">
               <TimePicker
-                :hour="hour"
-                :minute="minute"
-                @update:hour="(v: number) => emit('update:hour', v)"
-                @update:minute="(v: number) => emit('update:minute', v)"
+                v-model:hour="hourEdit"
+                v-model:minute="minuteEdit"
+                :number-input="uiStore.timePickerNumberInput"
               />
+              <div class="w-full px-4 flex justify-end gap-4">
+                <UButton
+                  icon="i-lucide-keyboard"
+                  color="neutral"
+                  variant="ghost"
+                  size="xl"
+                  class="rounded-full"
+                  @click="uiStore.timePickerNumberInput = !uiStore.timePickerNumberInput"
+                />
+                <div class="grow" />
+                <UButton color="neutral" variant="ghost" @click="modalOpen = false">キャンセル</UButton>
+                <UButton @click="updateTime">OK</UButton>
+              </div>
             </div>
           </template>
-        </USlideover>
+        </UModal>
       </div>
       <div>
         <UButton
@@ -45,7 +76,7 @@ const weekdayText = computed(() => {
           variant="soft"
           trailing-icon="i-lucide-chevron-down"
           :ui="{ trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200' }"
-          @click="open = !open"
+          @click="collapsibleOpen = !collapsibleOpen"
         />
       </div>
     </div>
@@ -56,7 +87,7 @@ const weekdayText = computed(() => {
       </div>
     </div>
 
-    <UCollapsible v-model:open="open">
+    <UCollapsible v-model:open="collapsibleOpen">
       <template #content>
         <USkeleton class="mt-4 w-full h-20" />
       </template>

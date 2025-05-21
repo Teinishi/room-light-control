@@ -5,7 +5,7 @@ export default defineNuxtConfig({
   devServer: {
     host: '0.0.0.0'
   },
-  modules: ['@nuxt/eslint', '@nuxt/icon', '@nuxt/ui', '@vite-pwa/nuxt'],
+  modules: ['@nuxt/eslint', '@nuxt/icon', '@nuxt/ui', '@vite-pwa/nuxt', "@pinia/nuxt"],
   css: ['~/assets/css/main.css'],
   app: {
     head: {
