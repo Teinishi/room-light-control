@@ -6,8 +6,6 @@ const props = defineProps<{
 const dateString = ref('');
 const time = ref('');
 
-let intervalId: ReturnType<typeof setTimeout>;
-
 function updateTime(timezone: string) {
   const now = new Date();
   dateString.value = now.toLocaleDateString('ja-JP', {
@@ -25,16 +23,21 @@ function updateTime(timezone: string) {
   });
 }
 
-onMounted(() => {
-  const timezone = props.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
+const timezone = props.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+let animationId: ReturnType<typeof requestAnimationFrame>;
+
+function animationFrame() {
   updateTime(timezone);
-  intervalId = setInterval(() => {
-    updateTime(timezone);
-  }, 1000);
+  animationId = requestAnimationFrame(animationFrame);
+}
+
+onMounted(() => {
+  animationFrame();
 });
 
 onUnmounted(() => {
-  clearInterval(intervalId)
+  cancelAnimationFrame(animationId);
 });
 </script>
 
