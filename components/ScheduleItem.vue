@@ -46,7 +46,7 @@ function updateTime() {
         <UModal v-model:open="modalOpen">
           <span class="text-4xl">{{ hour }}:{{ minute.toString().padStart(2, '0') }}</span>
           <template #content>
-            <div class="w-full h-32 py-4 flex flex-col justify-center items-center">
+            <div class="w-full py-4 flex flex-col justify-center items-center">
               <TimePicker
                 v-model:hour="hourEdit"
                 v-model:minute="minuteEdit"

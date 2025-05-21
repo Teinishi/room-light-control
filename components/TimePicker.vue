@@ -1,7 +1,4 @@
 <script setup lang="ts">
-const hour_list = [...range(0, 24, 1)];
-const minute_list = [...range(0, 60, 1)];
-
 defineProps<{
   hour: number,
   minute: number,
@@ -44,14 +41,13 @@ function updateMinute(v: number | undefined) {
     <template v-else>
       <NumberPicker
         :model-value="hour"
-        :items="hour_list"
-        :padding="2"
+        :range="[0, 23]"
         @update:model-value="updateHour"
       />
       <div class="h-16 text-5xl flex items-center">:</div>
       <NumberPicker
         :model-value="minute"
-        :items="minute_list"
+        :range="[0, 59]"
         :padding="2"
         @update:model-value="updateMinute"
       />

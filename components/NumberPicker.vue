@@ -1,18 +1,25 @@
 <script setup lang="ts">
 const props = withDefaults(defineProps<{
-  items: number[],
-  padding: number | undefined,
+  modelValue: number,
+  range: [number, number],
+  padding?: number,
   ui?: {
     item?: string
   }
 }>(), {
+  padding: undefined,
   ui: () => ({
     item: 'font-mono text-5xl flex justify-center items-center'
   })
 });
 
+const emit = defineEmits(['update:modelValue']);
+
 const carousel = useTemplateRef('carousel');
-const activeValue = defineModel<number>();
+
+const modLen = (x: number) => x % (props.range[1] + 1 - props.range[0]);
+
+const items = [...range(props.range[0], props.range[1] + 1, 1)];
 
 let before_init = true;
 
@@ -24,29 +31,47 @@ onMounted(() => {
 
 function onSelect(index: number) {
   if (!before_init) {
-    activeValue.value = props.items[index];
+    emit('update:modelValue', modLen(props.range[0] + index));
   }
 }
 
 watchEffect(() => {
-  if (activeValue.value) {
-    carousel.value?.emblaApi?.scrollTo(props.items.indexOf(activeValue.value), before_init);
-  }
+  carousel.value?.emblaApi?.scrollTo(props.modelValue, before_init);
 });
+
+function changeIndexBy(delta: number) {
+  emit('update:modelValue', modLen(props.modelValue + delta));
+}
 </script>
 
 <template>
-  <UCarousel
-    ref="carousel"
-    v-slot="{ item }"
-    :items="items"
-    orientation="vertical"
-    loop
-    :skip-snaps="true"
-    :ui="{ container: 'h-16 mt-0', item: 'pt-0' }"
-    :class="`w-16 h-16 *:w-full *:h-full`"
-    @select="onSelect"
-  >
-    <div :class="`w-16 h-16 ${ui.item}`">{{ padding ? item.toString().padStart(padding, '0') : item }}</div>
-  </UCarousel>
+  <div class="flex flex-col">
+    <UButton
+      icon="i-lucide-chevron-up"
+      variant="subtle"
+      color="neutral"
+      class="justify-center"
+      @click="changeIndexBy(-1)"
+    />
+    <UCarousel
+      ref="carousel"
+      v-slot="{ item }"
+      :items="items"
+      orientation="vertical"
+      loop
+      :skip-snaps="true"
+      :ui="{ container: 'h-16 mt-0', item: 'pt-0' }"
+      :class="`w-16 h-16`"
+      @select="onSelect"
+    >
+      <div :class="`w-16 h-16 ${ui.item}`">{{ padding ? item.toString().padStart(padding, '0') : item }}</div>
+    </UCarousel>
+    <UButton
+      icon="i-lucide-chevron-down"
+      variant="subtle"
+      color="neutral"
+      class="justify-center"
+      @click="changeIndexBy(1)"
+    />
+  </div>
 </template>
