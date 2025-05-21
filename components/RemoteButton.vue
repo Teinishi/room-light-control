@@ -19,5 +19,12 @@ async function send() {
 </script>
 
 <template>
-  <UButton class="justify-center" size="xl" :color="color" :variant="variant" @click="send"><slot/></UButton>
+  <UButton
+    class="justify-center px-4 py-2 rounded-lg text-2xl font-normal"
+    :color="color"
+    :variant="variant"
+    @click="send"
+  >
+    <slot />
+  </UButton>
 </template>
