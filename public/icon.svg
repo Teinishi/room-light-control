@@ -24,21 +24,14 @@
      showgrid="false"
      inkscape:snap-page="true"
      inkscape:zoom="14.979167"
-     inkscape:cx="7.8442281"
-     inkscape:cy="18.993046"
+     inkscape:cx="7.8442279"
+     inkscape:cy="18.993045"
      inkscape:window-width="1920"
      inkscape:window-height="1009"
      inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg8" />
-  <rect
-     style="fill:#00c950;fill-rule:evenodd;stroke:none;stroke-width:2.5;fill-opacity:1"
-     id="rect1079"
-     width="32"
-     height="32"
-     x="0"
-     y="0" />
   <g
      fill="none"
      stroke="currentColor"
@@ -47,14 +40,14 @@
      stroke-width="2"
      id="g6"
      transform="translate(4,4)"
-     style="stroke:#ffffff">
+     style="stroke:#00c950;stroke-opacity:1">
     <path
        d="M 15,21 V 13 A 1,1 0 0 0 14,12 H 10 A 1,1 0 0 0 9,13 V 21"
        id="path2"
-       style="stroke:#ffffff" />
+       style="stroke:#00c950;stroke-opacity:1" />
     <path
        d="M 3,10 A 2,2 0 0 1 3.709,8.472 L 10.709,2.473 A 2,2 0 0 1 13.291,2.473 L 20.291,8.472 A 2,2 0 0 1 21,10 V 19 A 2,2 0 0 1 19,21 H 5 A 2,2 0 0 1 3,19 Z"
        id="path4"
-       style="stroke:#ffffff" />
+       style="stroke:#00c950;stroke-opacity:1" />
   </g>
 </svg>

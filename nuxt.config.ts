@@ -31,11 +31,11 @@ export default defineNuxtConfig({
     registerType: "autoUpdate",
     manifest: {
       name: 'Room Light Control',
-      theme_color: "#00c950",
-      lang: "ja",
       short_name: "Light",
       start_url: "/",
+      lang: "ja",
       display: "standalone",
+      theme_color: "#00c950",
       background_color: "#ffffff",
       icons: [
         {
