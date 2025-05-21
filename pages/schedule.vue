@@ -8,7 +8,7 @@ const schedules = ref([
 </script>
 
 <template>
-  <div class="min-w-80 flex flex-col gap-4">
+  <div class="w-80 pb-13 flex flex-col gap-4">
     <ScheduleItem
       v-for="schedule in schedules"
       :key="schedule.id"
@@ -16,6 +16,9 @@ const schedules = ref([
       v-model:minute="schedule.minute"
       :weekday="schedule.weekday"
     />
-    <UButton class="text-2xl justify-center" icon="i-lucide-plus" variant="outline" />
+    <UButton
+      class="fixed bottom-22 left-0 right-0 m-auto w-80 rounded-lg text-2xl justify-center"
+      icon="i-lucide-plus"
+    />
   </div>
 </template>
