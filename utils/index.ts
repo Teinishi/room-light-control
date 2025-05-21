@@ -3,3 +3,5 @@ export function* range(start: number, end: number, step: number) {
     yield i;
   }
 }
+
+export const WEEKDAYS = [...'日月火水木金土'];

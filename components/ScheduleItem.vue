@@ -2,10 +2,10 @@
 const props = defineProps<{
   hour: number
   minute: number
-  weekday: boolean[]
+  weekdays: number[]
 }>();
 
-const emit = defineEmits(['update:hour', 'update:minute']);
+const emit = defineEmits(['update:hour', 'update:minute', 'update:weekdays']);
 
 const uiStore = useUiStore();
 
@@ -17,8 +17,11 @@ const hourEdit = ref(0);
 const minuteEdit = ref(0);
 
 const weekdayText = computed(() => {
-  const weekdays = [...'日月火水木金土'].filter((_, i) => props.weekday[i]);
-  if (weekdays.length == 1) {
+  const weekdays = WEEKDAYS.filter((_, i) => props.weekdays.includes(i));
+  const len = weekdays.length;
+  if (len == 0 || len == 7) {
+    return '毎日';
+  } if (weekdays.length == 1) {
     return `${weekdays[0]}曜日`;
   } else {
     return weekdays.join('、');
@@ -36,6 +39,16 @@ function updateTime() {
   modalOpen.value = false;
   emit('update:hour', hourEdit.value);
   emit('update:minute', minuteEdit.value);
+}
+
+function updateWeekday(i: number, selected: boolean) {
+  const s = new Set(props.weekdays);
+  if (selected) {
+    s.add(i);
+  } else {
+    s.delete(i);
+  }
+  emit('update:weekdays', [...s]);
 }
 </script>
 
@@ -80,16 +93,25 @@ function updateTime() {
         />
       </div>
     </div>
-    <div class="mt-4 flex">
+    <div class="mt-4 h-6 flex items-center">
       <div class="grow">{{ weekdayText }}</div>
-      <div class="flex items-center">
-        <USwitch v-model="enabled" />
-      </div>
+      <USwitch v-model="enabled" />
     </div>
 
     <UCollapsible v-model:open="collapsibleOpen">
       <template #content>
-        <USkeleton class="mt-4 w-full h-20" />
+        <div class="mt-4 w-full grid grid-cols-7 gap-1">
+          <UCheckbox
+            v-for="(name, index) in WEEKDAYS"
+            :key="index"
+            :label="name"
+            :model-value="weekdays.includes(index)"
+            indicator="hidden"
+            variant="card"
+            class="p-1 aspect-square flex items-center"
+            @update:model-value="v => updateWeekday(index, Boolean(v))"
+          />
+        </div>
       </template>
     </UCollapsible>
   </UCard>
