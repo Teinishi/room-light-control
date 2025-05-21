@@ -17,16 +17,18 @@ const commands = promises.readdir(REMOTE_COMMAND_DIRECTORY, {withFileTypes: true
 });
 
 export default defineEventHandler(async (event) => {
-  const commandType = getQuery(event).type;
+  const { type: commandType } = await readBody(event);
   if ((await commands).includes(commandType as string)) {
     try {
-      await execFilePromise(path.join(REMOTE_COMMAND_DIRECTORY, commandType + REMOTE_COMMAND_EXTENSION))
-      return { errorType: null, errorMessage: null };
+      await execFilePromise(path.join(REMOTE_COMMAND_DIRECTORY, commandType + REMOTE_COMMAND_EXTENSION));
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
-      return { errorType: 'execError', errorMessage: '操作実行時にエラーが発生しました' };
+      setResponseStatus(event, 500);
+      return { errorMessage: '操作実行時にエラーが発生しました' };
     }
   } else {
-    return { errorType: 'unknownCommand', errorMessage: '未知の操作です' };
+    setResponseStatus(event, 400);
+    return { errorMessage: '未知の操作です' };
   }
-})
+      return { errorMessage: null };
+});

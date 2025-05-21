@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type {FetchError} from 'ofetch';
+
 const props = defineProps<{
   color?: "error" | "primary" | "secondary" | "success" | "info" | "warning" | "neutral",
   variant?: "link" | "solid" | "outline" | "soft" | "subtle" | "ghost"
@@ -8,13 +10,17 @@ const props = defineProps<{
 const toast = useToast();
 
 async function send() {
-  const result = await $fetch(`/api/remote?type=${props.commandType}`);
-  if (result.errorType) {
+  await $fetch(`/api/remote`, {
+    method: 'POST',
+    body: { type: props.commandType }
+  }).catch((error: FetchError) => {
+    const message = error.data.errorMessage || 'サーバーに接続できませんでした';
     toast.add({
-      title: result.errorMessage,
-      color: 'error'
-    })
-  }
+      title: message,
+      color: 'error',
+      icon: 'i-lucide-triangle-alert'
+    });
+  });
 }
 </script>
 
