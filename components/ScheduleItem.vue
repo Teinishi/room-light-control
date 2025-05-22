@@ -53,11 +53,11 @@ function updateWeekday(i: number, selected: boolean) {
 </script>
 
 <template>
-  <UCard class="w-full">
+  <UCard class="w-full" @click="collapsibleOpen = !collapsibleOpen">
     <div class="flex">
       <div class="grow">
         <UModal v-model:open="modalOpen">
-          <span class="text-4xl">{{ hour }}:{{ minute.toString().padStart(2, '0') }}</span>
+          <span class="text-4xl" @click.stop>{{ hour }}:{{ minute.toString().padStart(2, '0') }}</span>
           <template #content>
             <div class="w-full py-4 flex flex-col justify-center items-center">
               <TimePicker
@@ -88,29 +88,38 @@ function updateWeekday(i: number, selected: boolean) {
           color="neutral"
           variant="soft"
           trailing-icon="i-lucide-chevron-down"
-          :ui="{ trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200' }"
-          @click="collapsibleOpen = !collapsibleOpen"
+          :ui="{ trailingIcon: `${collapsibleOpen ? 'rotate-180 ' : '' }transition-transform duration-200` }"
         />
       </div>
     </div>
     <div class="mt-4 h-6 flex items-center">
       <div class="grow">{{ weekdayText }}</div>
-      <USwitch v-model="enabled" />
+      <USwitch v-model="enabled" @click.stop />
     </div>
 
     <UCollapsible v-model:open="collapsibleOpen">
       <template #content>
-        <div class="mt-4 w-full grid grid-cols-7 gap-1">
-          <UCheckbox
-            v-for="(name, index) in WEEKDAYS"
-            :key="index"
-            :label="name"
-            :model-value="weekdays.includes(index)"
-            indicator="hidden"
-            variant="card"
-            class="p-1 aspect-square flex items-center"
-            @update:model-value="v => updateWeekday(index, Boolean(v))"
-          />
+        <div class="mt-4 w-full flex flex-col gap-4" @click.stop>
+          <div class="grid grid-cols-7 gap-1">
+            <UCheckbox
+              v-for="(name, index) in WEEKDAYS"
+              :key="index"
+              :label="name"
+              :model-value="weekdays.includes(index)"
+              indicator="hidden"
+              variant="card"
+              class="p-1 aspect-square flex items-center"
+              @update:model-value="v => updateWeekday(index, Boolean(v))"
+            />
+          </div>
+          <div class="flex justify-end">
+            <UButton
+              icon="i-lucide-trash-2"
+              label="削除"
+              color="error"
+              variant="outline"
+            />
+          </div>
         </div>
       </template>
     </UCollapsible>
