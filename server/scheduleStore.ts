@@ -11,7 +11,8 @@ export interface ScheduleItemSchema {
   enabled: boolean,
   hour: number,
   minute: number,
-  weekdays: number[]
+  weekdays: number[],
+  commandType: string,
 };
 
 const dbp = JSONFilePreset<ScheduleStoreSchema>(
@@ -35,6 +36,7 @@ export const addSchedule = async (schedule: ScheduleItemSchema) => {
   schedule.hour ??= 0;
   schedule.minute ??= 0;
   schedule.weekdays ??= [];
+  schedule.commandType ??= 'light_high';
 
   db.data.schedules.push(schedule);
   write();

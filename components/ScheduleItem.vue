@@ -5,11 +5,38 @@ const props = defineProps<{
   enabled: boolean,
   hour: number
   minute: number
-  weekdays: number[]
+  weekdays: number[],
+  commandType: string
 }>();
 
-const emit = defineEmits(['update:enabled', 'update:hour', 'update:minute', 'update:weekdays', 'delete']);
+const emit = defineEmits(['update:enabled', 'update:hour', 'update:minute', 'update:weekdays', 'update:commandType', 'delete']);
 
+const commandOptions = ref([
+  {
+    label: '明',
+    value: 'light_high'
+  },
+  {
+    label: '中',
+    value: 'light_medium'
+  },
+  {
+    label: '暗',
+    value: 'light_low'
+  },
+  {
+    label: '調光',
+    value: 'light_adjust'
+  },
+  {
+    label: '常夜灯',
+    value: 'light_night'
+  },
+  {
+    label: '消灯',
+    value: 'light_off'
+  },
+]);
 const collapsibleOpen = ref(false);
 
 const weekdayText = computed(() => {
@@ -82,7 +109,13 @@ function updateWeekday(i: number, selected: boolean) {
               @update:model-value="v => updateWeekday(index, Boolean(v))"
             />
           </div>
-          <div class="flex justify-end">
+          <div class="flex gap-4">
+            <USelect
+             :items="commandOptions"
+             :model-value="commandType"
+             class="grow"
+             @update:model-value="v => emit('update:commandType', v)"
+            />
             <UButton
               icon="i-lucide-trash-2"
               label="削除"

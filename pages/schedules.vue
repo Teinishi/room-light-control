@@ -20,7 +20,13 @@ async function deleteSchedule(id: number) {
 
 let timeoutId: ReturnType<typeof setTimeout>;
 
-async function updateSchedule(id: number, patch: {enabled?: boolean, hour?: number, minute?: number, weekdays?: number[]}) {
+async function updateSchedule(id: number, patch: {
+  enabled?: boolean,
+  hour?: number,
+  minute?: number,
+  weekdays?: number[],
+  commandType?: string,
+}) {
   await $fetch(`/api/schedules/update/${id}`, {
     method: 'post',
     body: { schedule: patch }
@@ -39,10 +45,12 @@ async function updateSchedule(id: number, patch: {enabled?: boolean, hour?: numb
       v-model:hour="schedule.hour"
       v-model:minute="schedule.minute"
       v-model:weekdays="schedule.weekdays"
+      v-model:command-type="schedule.commandType"
       @update:enabled="v => updateSchedule(schedule.id, {enabled: v})"
       @update:hour="v => updateSchedule(schedule.id, {hour: v})"
       @update:minute="v => updateSchedule(schedule.id, {minute: v})"
       @update:weekdays="v => updateSchedule(schedule.id, {weekdays: v})"
+      @update:command-type="v => updateSchedule(schedule.id, {commandType: v})"
       @delete="deleteSchedule(schedule.id)"
     />
     <TimePickerModal @change="addSchedule">
