@@ -15,6 +15,13 @@ export interface ScheduleItemSchema {
   commandType: string,
 };
 
+export const scheduleItemSchemaCheck = (value: unknown) => value && typeof value === 'object'
+    && (!('enabled' in value) || typeof value.enabled === 'boolean')
+    && (!('hour' in value) || typeof value.hour === 'number')
+    && (!('minute' in value) || typeof value.minute === 'number')
+    && (!('weekdays' in value) || (Array.isArray(value.weekdays) && value.weekdays.every(v => typeof v === 'number')))
+    && (!('commandType' in value) || typeof value.commandType === 'string');
+
 const dbp = JSONFilePreset<ScheduleStoreSchema>(
   path.join(process.env.STORE_DIRECTORY as string, 'schedules.json'),
   { schedules: [], nextId: 0 }
