@@ -53,6 +53,9 @@ async function updateSchedule(id: number, patch: {
       @update:command-type="v => updateSchedule(schedule.id, {commandType: v})"
       @delete="deleteSchedule(schedule.id)"
     />
+    <div v-show="schedules?.schedules.length == 0" class="w-full py-16 text-center text-gray-500">
+      設定がありません
+    </div>
     <TimePickerModal @change="addSchedule">
       <UButton
         class="fixed bottom-22 left-0 right-0 m-auto w-80 rounded-lg text-2xl justify-center"
