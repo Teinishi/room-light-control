@@ -1,20 +1,40 @@
 <script setup lang="ts">
 const { data: schedules, refresh } = await useFetch('/api/schedules/list');
 
+const toast = useToast();
+
 async function addSchedule({hour, minute}: {hour: number, minute: number}) {
-  await $fetch('/api/schedules/create', {
-    method: 'POST',
-    body: {
-      schedule: {
-        hour, minute
+  try {
+    await $fetch('/api/schedules/create', {
+      method: 'POST',
+      body: {
+        schedule: {
+          hour, minute
+        }
       }
-    }
-  });
+    });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch(err) {
+    toast.add({
+      title: 'エラーが発生しました',
+      color: 'error',
+      icon: 'i-lucide-triangle-alert'
+    });
+  }
   refresh();
 }
 
 async function deleteSchedule(id: number) {
-  await $fetch(`/api/schedules/delete/${id}`, { method: 'POST' });
+  try {
+    await $fetch(`/api/schedules/delete/${id}`, { method: 'POST' });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch(err) {
+    toast.add({
+      title: 'エラーが発生しました',
+      color: 'error',
+      icon: 'i-lucide-triangle-alert'
+    });
+  }
   refresh();
 }
 
@@ -27,10 +47,19 @@ async function updateSchedule(id: number, patch: {
   weekdays?: number[],
   commandType?: string,
 }) {
-  await $fetch(`/api/schedules/update/${id}`, {
-    method: 'post',
-    body: { schedule: patch }
-  });
+  try {
+    await $fetch(`/api/schedules/update/${id}`, {
+      method: 'post',
+      body: { schedule: patch }
+    });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch(err) {
+    toast.add({
+      title: 'エラーが発生しました',
+      color: 'error',
+      icon: 'i-lucide-triangle-alert'
+    });
+  }
   clearTimeout(timeoutId);
   timeoutId = setTimeout(refresh, 1000);
 }
