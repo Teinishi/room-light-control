@@ -10,7 +10,7 @@ const items = ref<NavigationMenuItem[]>([
   {
     label: '自動点灯',
     icon: 'i-lucide-alarm-clock',
-    to: '/schedule'
+    to: '/schedules'
   },
   {
     label: '設定',

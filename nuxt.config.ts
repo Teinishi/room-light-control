@@ -62,7 +62,7 @@ export default defineNuxtConfig({
       ],
     },
     workbox: {
-      navigateFallback: null
+      navigateFallback: null,
     },
     devOptions: {
       enabled: true,

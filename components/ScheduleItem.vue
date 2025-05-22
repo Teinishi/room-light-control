@@ -1,20 +1,16 @@
 <script setup lang="ts">
+import TimePickerModal from './TimePickerModal.vue';
+
 const props = defineProps<{
+  enabled: boolean,
   hour: number
   minute: number
   weekdays: number[]
 }>();
 
-const emit = defineEmits(['update:hour', 'update:minute', 'update:weekdays']);
+const emit = defineEmits(['update:enabled', 'update:hour', 'update:minute', 'update:weekdays', 'delete']);
 
-const uiStore = useUiStore();
-
-const modalOpen = ref(false);
 const collapsibleOpen = ref(false);
-const enabled = ref(true);
-
-const hourEdit = ref(0);
-const minuteEdit = ref(0);
 
 const weekdayText = computed(() => {
   const weekdays = WEEKDAYS.filter((_, i) => props.weekdays.includes(i));
@@ -28,17 +24,9 @@ const weekdayText = computed(() => {
   }
 });
 
-watchEffect(() => {
-  if (modalOpen.value) {
-    hourEdit.value = props.hour;
-    minuteEdit.value = props.minute;
-  }
-});
-
-function updateTime() {
-  modalOpen.value = false;
-  emit('update:hour', hourEdit.value);
-  emit('update:minute', minuteEdit.value);
+function changeTime({hour, minute}: {hour: number, minute: number}) {
+  emit('update:hour', hour);
+  emit('update:minute', minute);
 }
 
 function updateWeekday(i: number, selected: boolean) {
@@ -56,31 +44,13 @@ function updateWeekday(i: number, selected: boolean) {
   <UCard class="w-full" @click="collapsibleOpen = !collapsibleOpen">
     <div class="flex">
       <div class="grow">
-        <UModal v-model:open="modalOpen">
+        <TimePickerModal
+          :default-hour="hour"
+          :default-minute="minute"
+          @change="changeTime"
+        >
           <span class="text-4xl" @click.stop>{{ hour }}:{{ minute.toString().padStart(2, '0') }}</span>
-          <template #content>
-            <div class="w-full py-4 flex flex-col justify-center items-center">
-              <TimePicker
-                v-model:hour="hourEdit"
-                v-model:minute="minuteEdit"
-                :number-input="uiStore.timePickerNumberInput"
-              />
-              <div class="w-full px-4 flex justify-end gap-4">
-                <UButton
-                  icon="i-lucide-keyboard"
-                  color="neutral"
-                  variant="ghost"
-                  size="xl"
-                  class="rounded-full"
-                  @click="uiStore.timePickerNumberInput = !uiStore.timePickerNumberInput"
-                />
-                <div class="grow" />
-                <UButton color="neutral" variant="ghost" @click="modalOpen = false">キャンセル</UButton>
-                <UButton @click="updateTime">OK</UButton>
-              </div>
-            </div>
-          </template>
-        </UModal>
+        </TimePickerModal>
       </div>
       <div>
         <UButton
@@ -94,7 +64,7 @@ function updateWeekday(i: number, selected: boolean) {
     </div>
     <div class="mt-4 h-6 flex items-center">
       <div class="grow">{{ weekdayText }}</div>
-      <USwitch v-model="enabled" @click.stop />
+      <USwitch :model-value="enabled" @update:model-value="v => emit('update:enabled', v)" @click.stop />
     </div>
 
     <UCollapsible v-model:open="collapsibleOpen">
@@ -118,6 +88,7 @@ function updateWeekday(i: number, selected: boolean) {
               label="削除"
               color="error"
               variant="outline"
+              @click="emit('delete')"
             />
           </div>
         </div>
