@@ -1,5 +1,7 @@
 import path from 'path';
 import { JSONFilePreset } from 'lowdb/node';
+import cron from 'node-cron';
+import { executeCommand, isValidComamnd } from './command';
 
 export interface ScheduleStoreSchema {
   schedules: ScheduleItemSchema[],
@@ -22,22 +24,40 @@ export const scheduleItemSchemaCheck = (value: unknown) => value && typeof value
     && (!('weekdays' in value) || (Array.isArray(value.weekdays) && value.weekdays.every(v => typeof v === 'number')))
     && (!('commandType' in value) || typeof value.commandType === 'string');
 
-const dbp = JSONFilePreset<ScheduleStoreSchema>(
+const createCronTask = (schedule: ScheduleItemSchema) => {
+  if (
+    !Number.isInteger(schedule.hour)
+      || !Number.isInteger(schedule.minute)
+      || !Array.isArray(schedule.weekdays)
+      || !schedule.weekdays.every(v => Number.isInteger(v) && 0 <= v && v <= 7)
+      || !isValidComamnd(schedule.commandType)
+  ) {
+    return null;
+  }
+  return cron.schedule(`0 ${schedule.minute} ${schedule.hour} * * ${schedule.weekdays.join(',')}`, () => {
+    executeCommand(schedule.commandType);
+  });
+};
+
+const db = await JSONFilePreset<ScheduleStoreSchema>(
   path.join(process.env.STORE_DIRECTORY as string, 'schedules.json'),
   { schedules: [], nextId: 0 }
 );
 
+const tasks = new Map(db.data.schedules.map(schedule => {
+  const task = createCronTask(schedule);
+  return [schedule.id, task];
+}));
+
 let timeoutId: ReturnType<typeof setTimeout>;
 const write = () => {
   clearTimeout(timeoutId);
-  timeoutId = setTimeout(async () => await (await dbp).write(), 1000);
+  timeoutId = setTimeout(async () => await db.write(), 1000);
 }
 
-export const getSchedules = async () => (await dbp).data;
+export const getSchedules = () => db.data;
 
-export const addSchedule = async (schedule: ScheduleItemSchema) => {
-  const db = await dbp;
-
+export const addSchedule = (schedule: ScheduleItemSchema) => {
   schedule.id = db.data.nextId++;
   schedule.enabled ??= true;
   schedule.hour ??= 0;
@@ -46,13 +66,12 @@ export const addSchedule = async (schedule: ScheduleItemSchema) => {
   schedule.commandType ??= 'light_high';
 
   db.data.schedules.push(schedule);
+  tasks.set(schedule.id, createCronTask(schedule));
   write();
   return schedule;
 };
 
-export const deleteSchedule = async (id: number) => {
-  const db = await dbp;
-
+export const deleteSchedule = (id: number) => {
   const index = db.data.schedules.findIndex(s => {
     return s.id == id;
   });
@@ -60,16 +79,21 @@ export const deleteSchedule = async (id: number) => {
     return false;
   }
   db.data.schedules.splice(index, 1);
+  tasks.get(id)?.stop();
+  tasks.delete(id);
   write();
   return true;
 };
 
-export const updateSchedule = async (id: number, func: (schedule: ScheduleItemSchema) => void) => {
-  const db = await dbp;
-
-  const schedule = db.data.schedules.find(s => s.id == id);
+export const updateSchedule = (id: number, func: (schedule: ScheduleItemSchema) => ScheduleItemSchema) => {
+  const index = db.data.schedules.findIndex(s => s.id == id);
+  const schedule = db.data.schedules[index];
   if (schedule) {
-    func(schedule)
+    tasks.get(schedule.id)?.stop();
+    tasks.delete(schedule.id);
+    const newSchedule = func(schedule);
+    db.data.schedules[index] = newSchedule;
+    tasks.set(newSchedule.id, createCronTask(newSchedule));
     write();
     return true;
   } else {

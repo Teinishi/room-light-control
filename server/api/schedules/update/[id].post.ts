@@ -16,5 +16,6 @@ export default defineEventHandler(async event => {
   updateSchedule(id, schedule => {
     newSchedule.id = schedule.id;
     Object.assign(schedule, newSchedule);
+    return schedule;
   });
 });
