@@ -66,7 +66,7 @@ async function updateSchedule(id: number, patch: {
 </script>
 
 <template>
-  <div class="w-80 pb-13 relative">
+  <div class="w-80 pb-13 space-y-4 relative">
     <TransitionGroup
       enter-active-class="transition"
       leave-active-class="transition absolute"
@@ -82,7 +82,7 @@ async function updateSchedule(id: number, patch: {
         v-model:minute="schedule.minute"
         v-model:weekdays="schedule.weekdays"
         v-model:command-type="schedule.commandType"
-        class="w-full mt-4 first:mt-0 duration-300"
+        class="w-full duration-300"
         @update:enabled="v => updateSchedule(schedule.id, {enabled: v})"
         @update:hour="v => updateSchedule(schedule.id, {hour: v})"
         @update:minute="v => updateSchedule(schedule.id, {minute: v})"

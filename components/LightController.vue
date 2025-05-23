@@ -1,10 +1,15 @@
+<script setup lang="ts">
+const commandTypes = ref(COMMAND_TYPES);
+</script>
+
 <template>
   <div class="grid grid-cols-2 grid-rows-3 grid-flow-col gap-4">
-    <RemoteButton command-type="light_high">明</RemoteButton>
-    <RemoteButton command-type="light_medium">中</RemoteButton>
-    <RemoteButton command-type="light_low">暗</RemoteButton>
-    <RemoteButton color="secondary" command-type="light_adjust">調光</RemoteButton>
-    <RemoteButton color="neutral" variant="soft" command-type="light_night">常夜灯</RemoteButton>
-    <RemoteButton color="neutral" variant="outline" command-type="light_off">消灯</RemoteButton>
+    <RemoteButton
+      v-for="command in commandTypes"
+      :key="command.type"
+      :command-type="command.type"
+      :color="command.buttonColor"
+      :variant="command.buttonVariant"
+    >{{ command.label }}</RemoteButton>
   </div>
 </template>

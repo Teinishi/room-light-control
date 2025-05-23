@@ -2,8 +2,8 @@
 import type {FetchError} from 'ofetch';
 
 const props = defineProps<{
-  color?: "error" | "primary" | "secondary" | "success" | "info" | "warning" | "neutral",
-  variant?: "link" | "solid" | "outline" | "soft" | "subtle" | "ghost"
+  color?: uButtonColor,
+  variant?: uButtonVariant
   commandType: string
 }>();
 

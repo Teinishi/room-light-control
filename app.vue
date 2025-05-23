@@ -4,6 +4,10 @@ useHead({
     lang: 'ja'
   }
 });
+
+const uiStore = useUiStore();
+
+await callOnce(uiStore.fetch);
 </script>
 
 <template>

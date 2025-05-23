@@ -34,33 +34,7 @@ async function init() {
     timeoutId = setTimeout(async () => await db.write(), 1000);
   };
 
-  /*const createCronTask = async (schedule: ScheduleItemSchema) => {
-    if (
-      !Number.isInteger(schedule.hour)
-        || !Number.isInteger(schedule.minute)
-        || !Array.isArray(schedule.weekdays)
-        || !schedule.weekdays.every(v => Number.isInteger(v) && 0 <= v && v <= 7)
-        || !(await isValidComamnd(schedule.commandType))
-    ) {
-      return null;
-    }
-    return cron.schedule(`0 ${schedule.minute} ${schedule.hour} * * ${schedule.weekdays.join(',')}`, () => {
-      executeCommand(schedule.commandType);
-    });
-  };*/
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const createCronTask = (schedule: ScheduleItemSchema) => null;
-
-  const tasks = new Map(
-    await Promise.all(
-      db.data.schedules.map(
-        async schedule => [schedule.id, await createCronTask(schedule)] as const
-      )
-    )
-  );
-
-  return {db, write, tasks, createCronTask};
+  return {db, write};
 }
 
 const dbContainer = init();
@@ -68,7 +42,7 @@ const dbContainer = init();
 export const getSchedules = async () => (await dbContainer).db.data;
 
 export const addSchedule = async (schedule: ScheduleItemSchema) => {
-  const {db, write, tasks, createCronTask} = await dbContainer;
+  const {db, write} = await dbContainer;
 
   schedule.id = db.data.nextId++;
   schedule.enabled ??= true;
@@ -78,13 +52,12 @@ export const addSchedule = async (schedule: ScheduleItemSchema) => {
   schedule.commandType ??= 'light_high';
 
   db.data.schedules.push(schedule);
-  tasks.set(schedule.id, createCronTask(schedule));
   write();
   return schedule;
 };
 
 export const deleteSchedule = async (id: number) => {
-  const {db, write, tasks} = await dbContainer;
+  const {db, write} = await dbContainer;
 
   const index = db.data.schedules.findIndex(s => {
     return s.id == id;
@@ -93,23 +66,18 @@ export const deleteSchedule = async (id: number) => {
     return false;
   }
   db.data.schedules.splice(index, 1);
-  //tasks.get(id)?.stop();
-  tasks.delete(id);
   write();
   return true;
 };
 
 export const updateSchedule = async (id: number, func: (schedule: ScheduleItemSchema) => ScheduleItemSchema) => {
-  const {db, write, tasks, createCronTask} = await dbContainer;
+  const {db, write} = await dbContainer;
 
   const index = db.data.schedules.findIndex(s => s.id == id);
   const schedule = db.data.schedules[index];
   if (schedule) {
-    //tasks.get(schedule.id)?.stop();
-    tasks.delete(schedule.id);
     const newSchedule = func(schedule);
     db.data.schedules[index] = newSchedule;
-    tasks.set(newSchedule.id, await createCronTask(newSchedule));
     write();
     return true;
   } else {

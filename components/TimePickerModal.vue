@@ -39,7 +39,7 @@ function updateTime() {
           v-model:minute="minuteEdit"
           :number-input="uiStore.timePickerNumberInput"
         />
-        <div class="w-full px-4 flex justify-end gap-4">
+        <div class="w-full mt-4 px-4 flex justify-end gap-4">
           <UButton
             icon="i-lucide-keyboard"
             color="neutral"
