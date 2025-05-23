@@ -7,11 +7,15 @@ export default defineNuxtConfig({
   },
   modules: ['@nuxt/eslint', '@nuxt/icon', '@nuxt/ui', '@vite-pwa/nuxt', "@pinia/nuxt"],
   nitro: {
+    experimental: { tasks: true },
     storage: {
       db: {
         driver: 'fs',
         base: './data/db'
       }
+    },
+    scheduledTasks: {
+      '* * * * *': ['schedule']
     }
   },
   css: ['~/assets/css/main.css'],
