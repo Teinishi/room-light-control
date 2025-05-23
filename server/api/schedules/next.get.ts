@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
     const day = checkDate.getDay();
 
     schedules.forEach(schedule => {
-        if (schedule.weekdays.length !== 0 && !schedule.weekdays.includes(day)) {
+        if (!schedule.enabled || schedule.weekdays.length !== 0 && !schedule.weekdays.includes(day)) {
           return;
         }
         checkDate.setHours(schedule.hour, schedule.minute, 0, 0);

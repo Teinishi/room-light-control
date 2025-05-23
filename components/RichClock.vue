@@ -7,6 +7,8 @@ const props = defineProps<{
   }
 }>();
 
+const emit = defineEmits(['passedNext']);
+
 const dateString = ref('');
 const time = ref('');
 const nextScheduleCountdown = ref('');
@@ -52,6 +54,9 @@ function animationFrame() {
   if (props.nextScheduleInfo) {
     const now = new Date();
     const sec = props.nextScheduleInfo.unixtime - Math.floor(now.getTime() / 1000);
+    if (sec < 0 && showNextSchedule.value) {
+      emit('passedNext');
+    }
     showNextSchedule.value = sec >= 0;
 
     const minutes = Math.round(sec / 60);
@@ -86,13 +91,15 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div>
-    <div class="text-gray-500 text-center">{{ dateString }}</div>
+  <div class="space-y-4">
+    <div class="h-6 text-gray-500 text-center">{{ dateString }}</div>
     <div class="text-6xl font-mono">{{ time }}</div>
-    <div v-if="nextScheduleInfo && showNextSchedule" class="text-gray-500 flex justify-center gap-4">
-      <UBadge :label="nextCommand?.label" :color="nextCommand?.buttonColor" />
-      <div>{{ nextScheduleCountdown }}</div>
-      <div>{{ nextScheduleText }}</div>
+    <div class="h-6 text-gray-500 flex justify-center gap-4">
+      <template v-if="nextScheduleInfo && showNextSchedule">
+        <UBadge :label="nextCommand?.label" :color="nextCommand?.buttonColor" />
+        <div>{{ nextScheduleCountdown }}</div>
+        <div>{{ nextScheduleText }}</div>
+      </template>
     </div>
   </div>
 </template>

@@ -1,7 +1,14 @@
 <script setup lang="ts">
-const { data: schedules, refresh } = await useFetch('/api/schedules/list');
+const { data: schedules, refresh: refreshSchedules } = await useFetch('/api/schedules/list');
 
 const toast = useToast();
+
+const uiStore = useUiStore();
+
+function refresh() {
+  refreshSchedules();
+  uiStore.fetch();
+}
 
 async function addSchedule({hour, minute}: {hour: number, minute: number}) {
   try {
