@@ -13,7 +13,8 @@ export default defineEventHandler(async event => {
     setResponseStatus(event, 400);
     return;
   }
-  updateSchedule(id, schedule => {
+
+  await updateSchedule(id, schedule => {
     newSchedule.id = schedule.id;
     Object.assign(schedule, newSchedule);
     return schedule;

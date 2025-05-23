@@ -6,6 +6,7 @@ export default defineEventHandler(async (event) => {
     setResponseStatus(event, 400);
     return;
   }
-  addSchedule(schedule);
+
+  await addSchedule(schedule);
   return { schedule: schedule };
 });

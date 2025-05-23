@@ -1,7 +1,5 @@
 import path from 'path';
 import { JSONFilePreset } from 'lowdb/node';
-import cron from 'node-cron';
-import { executeCommand, isValidComamnd } from './command';
 
 export interface ScheduleStoreSchema {
   schedules: ScheduleItemSchema[],
@@ -24,40 +22,54 @@ export const scheduleItemSchemaCheck = (value: unknown) => value && typeof value
     && (!('weekdays' in value) || (Array.isArray(value.weekdays) && value.weekdays.every(v => typeof v === 'number')))
     && (!('commandType' in value) || typeof value.commandType === 'string');
 
-const createCronTask = (schedule: ScheduleItemSchema) => {
-  if (
-    !Number.isInteger(schedule.hour)
-      || !Number.isInteger(schedule.minute)
-      || !Array.isArray(schedule.weekdays)
-      || !schedule.weekdays.every(v => Number.isInteger(v) && 0 <= v && v <= 7)
-      || !isValidComamnd(schedule.commandType)
-  ) {
-    return null;
-  }
-  return cron.schedule(`0 ${schedule.minute} ${schedule.hour} * * ${schedule.weekdays.join(',')}`, () => {
-    executeCommand(schedule.commandType);
-  });
-};
+async function init() {
+  const db = await JSONFilePreset<ScheduleStoreSchema>(
+    path.join(process.env.STORE_DIRECTORY as string, 'schedules.json'),
+    { schedules: [], nextId: 0 }
+  );
 
-const db = await JSONFilePreset<ScheduleStoreSchema>(
-  path.join(process.env.STORE_DIRECTORY as string, 'schedules.json'),
-  { schedules: [], nextId: 0 }
-);
+  let timeoutId: ReturnType<typeof setTimeout>;
+  const write = () => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(async () => await db.write(), 1000);
+  };
 
-const tasks = new Map(db.data.schedules.map(schedule => {
-  const task = createCronTask(schedule);
-  return [schedule.id, task];
-}));
+  /*const createCronTask = async (schedule: ScheduleItemSchema) => {
+    if (
+      !Number.isInteger(schedule.hour)
+        || !Number.isInteger(schedule.minute)
+        || !Array.isArray(schedule.weekdays)
+        || !schedule.weekdays.every(v => Number.isInteger(v) && 0 <= v && v <= 7)
+        || !(await isValidComamnd(schedule.commandType))
+    ) {
+      return null;
+    }
+    return cron.schedule(`0 ${schedule.minute} ${schedule.hour} * * ${schedule.weekdays.join(',')}`, () => {
+      executeCommand(schedule.commandType);
+    });
+  };*/
 
-let timeoutId: ReturnType<typeof setTimeout>;
-const write = () => {
-  clearTimeout(timeoutId);
-  timeoutId = setTimeout(async () => await db.write(), 1000);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const createCronTask = (schedule: ScheduleItemSchema) => null;
+
+  const tasks = new Map(
+    await Promise.all(
+      db.data.schedules.map(
+        async schedule => [schedule.id, await createCronTask(schedule)] as const
+      )
+    )
+  );
+
+  return {db, write, tasks, createCronTask};
 }
 
-export const getSchedules = () => db.data;
+const dbContainer = init();
 
-export const addSchedule = (schedule: ScheduleItemSchema) => {
+export const getSchedules = async () => (await dbContainer).db.data;
+
+export const addSchedule = async (schedule: ScheduleItemSchema) => {
+  const {db, write, tasks, createCronTask} = await dbContainer;
+
   schedule.id = db.data.nextId++;
   schedule.enabled ??= true;
   schedule.hour ??= 0;
@@ -71,7 +83,9 @@ export const addSchedule = (schedule: ScheduleItemSchema) => {
   return schedule;
 };
 
-export const deleteSchedule = (id: number) => {
+export const deleteSchedule = async (id: number) => {
+  const {db, write, tasks} = await dbContainer;
+
   const index = db.data.schedules.findIndex(s => {
     return s.id == id;
   });
@@ -79,21 +93,23 @@ export const deleteSchedule = (id: number) => {
     return false;
   }
   db.data.schedules.splice(index, 1);
-  tasks.get(id)?.stop();
+  //tasks.get(id)?.stop();
   tasks.delete(id);
   write();
   return true;
 };
 
-export const updateSchedule = (id: number, func: (schedule: ScheduleItemSchema) => ScheduleItemSchema) => {
+export const updateSchedule = async (id: number, func: (schedule: ScheduleItemSchema) => ScheduleItemSchema) => {
+  const {db, write, tasks, createCronTask} = await dbContainer;
+
   const index = db.data.schedules.findIndex(s => s.id == id);
   const schedule = db.data.schedules[index];
   if (schedule) {
-    tasks.get(schedule.id)?.stop();
+    //tasks.get(schedule.id)?.stop();
     tasks.delete(schedule.id);
     const newSchedule = func(schedule);
     db.data.schedules[index] = newSchedule;
-    tasks.set(newSchedule.id, createCronTask(newSchedule));
+    tasks.set(newSchedule.id, await createCronTask(newSchedule));
     write();
     return true;
   } else {

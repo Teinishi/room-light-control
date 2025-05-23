@@ -6,6 +6,14 @@ export default defineNuxtConfig({
     host: '0.0.0.0'
   },
   modules: ['@nuxt/eslint', '@nuxt/icon', '@nuxt/ui', '@vite-pwa/nuxt', "@pinia/nuxt"],
+  nitro: {
+    storage: {
+      db: {
+        driver: 'fs',
+        base: './data/db'
+      }
+    }
+  },
   css: ['~/assets/css/main.css'],
   app: {
     head: {

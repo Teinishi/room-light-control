@@ -1,8 +1,8 @@
-import { executeCommand, isValidComamnd } from '../command';
+import { isValidComamnd, executeCommand } from '../command';
 
 export default defineEventHandler(async (event) => {
   const { type: commandType } = await readBody(event);
-  if (!isValidComamnd(commandType)) {
+  if (!(await isValidComamnd(commandType))) {
     setResponseStatus(event, 400);
     return { errorMessage: '未知の操作です' };
   }
