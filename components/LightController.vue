@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="grid grid-cols-2 grid-rows-3 grid-flow-col gap-4">
     <RemoteButton command-type="light_high">明</RemoteButton>
     <RemoteButton command-type="light_medium">中</RemoteButton>
     <RemoteButton command-type="light_low">暗</RemoteButton>

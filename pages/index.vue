@@ -1,3 +1,5 @@
 <template>
-  <LightController class="grow flex flex-col gap-4 justify-center" />
+  <div class="grow flex justify-center items-center">
+    <LightController />
+  </div>
 </template>

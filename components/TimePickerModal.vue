@@ -15,8 +15,8 @@ const minuteEdit = ref(0);
 
 watchEffect(() => {
   const now = new Date();
-  const hour = props.defaultHour || now.getHours();
-  const minute = props.defaultMinute || now.getMinutes();
+  const hour = props.defaultHour ?? now.getHours();
+  const minute = props.defaultMinute ?? now.getMinutes();
   if (open.value) {
     hourEdit.value = hour;
     minuteEdit.value = minute;
