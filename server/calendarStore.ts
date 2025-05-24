@@ -1,6 +1,7 @@
 import path from 'path';
 import { JSONFilePreset } from 'lowdb/node';
 import { dateString } from '~/utils';
+import holiday_jp from "@holiday-jp/holiday_jp";
 
 export interface CalendarStoreSchema {
   overrideDays: Record<string, number>
@@ -39,3 +40,7 @@ export const updateOverrideDay = async (targetDate: Date, overrideDay: number) =
 
   write();
 };
+
+export const getDay = async (date: Date) =>
+  (await getOverrideDays()).overrideDays[dateString(date)] ??
+  (holiday_jp.isHoliday(date) ? 0 : date.getDay());

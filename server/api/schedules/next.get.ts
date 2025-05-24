@@ -1,7 +1,6 @@
-import { getOverrideDays } from "~/server/calendarStore";
+import { getDay } from "~/server/calendarStore";
 import type { ScheduleItemSchema } from "~/server/scheduleStore";
 import { getSchedules } from "~/server/scheduleStore";
-import { dateString } from "~/utils";
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event);
@@ -16,8 +15,7 @@ export default defineEventHandler(async (event) => {
     const checkDate = new Date(from);
     checkDate.setDate(checkDate.getDate() + i);
 
-    const key = dateString(checkDate);
-    const day = (await getOverrideDays()).overrideDays[key] ?? checkDate.getDay();
+    const day = await getDay(checkDate);
 
     schedules.forEach(schedule => {
         if (!schedule.enabled || schedule.weekdays.length !== 0 && !schedule.weekdays.includes(day)) {

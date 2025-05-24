@@ -28,7 +28,7 @@ const getKey = (date: {year: number, month: number, day: number}) =>
   [date.year, date.month, date.day].map((v, i) => v.toString().padStart(i === 0 ? 4 : 2, '0')).join('-');
 
 function selectChanged(date: DateValue) {
-  if (selectedDate.value !== null
+  if (!date || selectedDate.value !== null
     && selectedDate.value.year === date.year
     && selectedDate.value.month === date.month
     && selectedDate.value.day === date.day
