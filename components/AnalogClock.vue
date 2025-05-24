@@ -27,8 +27,7 @@ function animationFrame() {
   } else {
     const x = easeOutElastic(t);
     if (1 - prevFrameX !== 0) {
-      secondNeedleAngle.value += (x - prevFrameX) / (1 - prevFrameX) * (targetAngle - secondNeedleAngle.value);
-      secondNeedleAngle.value %= 360;
+      secondNeedleAngle.value += (x - prevFrameX) / (1 - prevFrameX) * angleDiff(targetAngle, secondNeedleAngle.value);
     }
     prevFrameSecond = props.second;
     prevFrameX = x;
@@ -44,14 +43,6 @@ onMounted(() => {
 onUnmounted(() => {
   cancelAnimationFrame(animationId);
 });
-
-function easeOutElastic(x: number): number {
-  const c4 = (2 * Math.PI) / 3;
-
-  return x === 0 ? 0
-    : x === 1 ? 1
-    : Math.pow(2, -10 * x) * Math.sin((x * 10 - 0.75) * c4) + 1;
-}
 </script>
 
 <template>
@@ -95,7 +86,7 @@ function easeOutElastic(x: number): number {
       y2="58"
       class="light:stroke-gray-400 dark:stroke-gray-600"
       stroke-linecap="round"
-      :transform="`rotate(${secondNeedleAngle} 50 50)`"
+      :transform="`rotate(${secondNeedleAngle % 360} 50 50)`"
     />
   </svg>
 </template>

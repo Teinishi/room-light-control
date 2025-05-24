@@ -114,7 +114,7 @@ onUnmounted(() => {
       :hour="time.hour"
       :minute="time.minute"
       :second="time.second"
-      class="h-full aspect-auto"
+      class="max-w-full h-full aspect-auto"
     />
     <div class="w-24 text-gray-500 flex flex-col items-start gap-4">
       <template v-if="nextScheduleInfo && showNextSchedule">
