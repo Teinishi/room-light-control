@@ -81,6 +81,5 @@ async function updateOverrideDay(value: number) {
       <div>曜日読み替え</div>
       <WeekSelect v-model="selectedDay" @update:model-value="updateOverrideDay" />
     </div>
-    {{ calendar }}
   </div>
 </template>

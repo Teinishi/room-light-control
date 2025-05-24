@@ -36,7 +36,6 @@ export const updateOverrideDay = async (targetDate: Date, overrideDay: number) =
   } else {
     db.data.overrideDays[key] = overrideDay;
   }
-  console.log(db.data);
 
   write();
 };

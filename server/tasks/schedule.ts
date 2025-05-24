@@ -1,3 +1,5 @@
+import { dateString } from "~/utils";
+import { getOverrideDays } from "../calendarStore";
 import { executeCommand } from "../command";
 import { getSchedules } from "../scheduleStore";
 
@@ -6,7 +8,7 @@ export default defineTask({
     const now = new Date();
     const nowHour = now.getHours();
     const nowMinute = now.getMinutes();
-    const dayOfWeek = now.getDay();
+    const dayOfWeek = (await getOverrideDays()).overrideDays[dateString(now)] ?? now.getDay();
     (await getSchedules()).schedules.find(schedule => {
       if (
         !schedule.enabled
