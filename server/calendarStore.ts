@@ -1,27 +1,15 @@
 import path from 'path';
 import { JSONFilePreset } from 'lowdb/node';
+import { dateString } from '~/utils';
 
 export interface CalendarStoreSchema {
-  overrideDays: OverrideDayItemSchema[]
+  overrideDays: Record<string, number>
 }
-
-export interface OverrideDayItemSchema {
-  year: number,
-  month: number,
-  date: number,
-  overrideDay: number
-}
-
-export const overrideDayItemSchemaCheck = (value: unknown) => value && typeof value === 'object'
-  && 'year' in value && typeof value.year === 'number'
-  && 'month' in value && typeof value.month === 'number'
-  && 'date' in value && typeof value.date === 'number'
-  && 'overrideDay' in value && typeof value.overrideDay === 'number';
 
 async function init() {
   const db = await JSONFilePreset<CalendarStoreSchema>(
     path.join(process.env.STORE_DIRECTORY as string, 'calender.json'),
-    { overrideDays: [] }
+    { overrideDays: {} }
   );
 
   let timeoutId: ReturnType<typeof setTimeout>;
@@ -37,25 +25,18 @@ const dbContainer = init();
 
 export const getOverrideDays = async () => (await dbContainer).db.data;
 
-export const updateOverrideDay = async ({year, month, date, overrideDay}: OverrideDayItemSchema) => {
+export const updateOverrideDay = async (targetDate: Date, overrideDay: number) => {
   const {db, write} = await dbContainer;
-  const {overrideDays} = db.data;
 
-  const targetIndex = overrideDays.findIndex(o => o.year === year && o.month === month && o.date === date);
+  const key = dateString(targetDate);
 
-  const defaultDate = new Date();
-  defaultDate.setFullYear(year, month - 1, date);
-  if (defaultDate.getDay() === overrideDay) {
-    if (targetIndex !== -1) {
-      overrideDays.splice(targetIndex, 1);
-    }
+  if (targetDate.getDay() === overrideDay) {
+    const {[key]: _, ...rest} = db.data.overrideDays;
+    db.data.overrideDays = rest;
   } else {
-    if (targetIndex !== -1) {
-      overrideDays[targetIndex].overrideDay = overrideDay;
-    } else {
-      overrideDays.push({year, month, date, overrideDay});
-    }
+    db.data.overrideDays[key] = overrideDay;
   }
+  console.log(db.data);
 
   write();
 };

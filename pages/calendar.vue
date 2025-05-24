@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { today, type DateValue } from '@internationalized/date';
-
 const { data: calendar, refresh: refreshCalenders } = await useFetch('/api/calendar/list');
 
 const serverStore = useServerStore();
@@ -14,9 +13,9 @@ const timezone = computed(() => serverStore.timezone ?? '');
 
 const selectedDate = ref<DateValue | null>(null);
 
-const selectedDay = ref(0);
+const selectedDay = ref(-1);
 
-const getOverrideDay = (date: DateValue) => calendar.value?.overrideDays.find(o => o.year === date.year && o.month === date.month && o.date === date.day);
+const getKey = (date: DateValue) => `${date.year.toString().padStart(4, '0')}-${date.month.toString().padStart(2, '0')}-${date.day.toString().padStart(2, '0')}`;
 
 function selectChanged(date: DateValue) {
   if (selectedDate.value !== null
@@ -27,7 +26,7 @@ function selectChanged(date: DateValue) {
     return;
   }
   selectedDate.value = date;
-  selectedDay.value = getOverrideDay(date)?.overrideDay ?? date.toDate(timezone.value).getDay();
+  selectedDay.value = calendar.value?.overrideDays[getKey(date)] ?? date.toDate(timezone.value).getDay();
 }
 
 onMounted(() => selectChanged(today(timezone.value)));
@@ -44,19 +43,17 @@ function isDateDisabled(date: DateValue) {
   return year < tYear || year === tYear && (month < tMonth || month === tMonth && day < tDay);
 }
 
-const hasDateChip = (date: DateValue) => getOverrideDay(date) !== undefined;
+const hasDateChip = (date: DateValue) => getKey(date) in (calendar.value?.overrideDays ?? {});
 
 async function updateOverrideDay(value: number) {
   if (selectedDate.value !== null) {
     await $fetch('/api/calendar/update', {
       method: 'POST',
       body: {
-        overrideDay: {
-          year: selectedDate.value.year,
-          month: selectedDate.value.month,
-          date: selectedDate.value.day,
-          overrideDay: value
-        }
+        year: selectedDate.value.year,
+        month: selectedDate.value.month,
+        date: selectedDate.value.day,
+        overrideDay: value
       }
     });
   }
@@ -84,5 +81,6 @@ async function updateOverrideDay(value: number) {
       <div>曜日読み替え</div>
       <WeekSelect v-model="selectedDay" @update:model-value="updateOverrideDay" />
     </div>
+    {{ calendar }}
   </div>
 </template>

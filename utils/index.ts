@@ -62,3 +62,5 @@ export function easeOutElastic(x: number): number {
 }
 
 export const angleDiff = (a: number, b: number) => (a % 360 - b % 360 + 900) % 360 - 180;
+
+export const dateString = (date: Date) => date.toISOString().slice(0, 10); // "YYYY-MM-DD"
