@@ -3,11 +3,11 @@ const { data: schedules, refresh: refreshSchedules } = await useFetch('/api/sche
 
 const toast = useToast();
 
-const uiStore = useUiStore();
+const serverStore = useServerStore();
 
 function refresh() {
   refreshSchedules();
-  uiStore.fetch();
+  serverStore.fetch();
 }
 
 async function addSchedule({hour, minute}: {hour: number, minute: number}) {

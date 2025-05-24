@@ -47,7 +47,7 @@ onUnmounted(() => {
 
 <template>
   <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="50" cy="50" r="50" class="light:fill-gray-100 dark:fill-gray-900" />
+    <circle cx="50" cy="50" r="50" class="light:fill-gray-100 dark:fill-gray-800" />
     <line
       v-for="i in 12"
       :key="i"

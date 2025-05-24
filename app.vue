@@ -5,9 +5,9 @@ useHead({
   }
 });
 
-const uiStore = useUiStore();
+const serverStore = useServerStore();
 
-await callOnce(uiStore.fetch);
+await callOnce(serverStore.fetch);
 </script>
 
 <template>

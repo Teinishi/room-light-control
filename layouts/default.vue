@@ -1,9 +1,31 @@
 <script setup lang="ts">
 const uiStore = useUiStore();
+const serverStore = useServerStore();
+
+const clockContextMenu = computed<ContextMenuItem[][]>(() => ([
+  [
+    {
+      label: 'デジタル時計',
+      type: 'checkbox',
+      checked: uiStore.clockType === 'digital',
+      onSelect() {
+        uiStore.clockType = 'digital';
+      }
+    },
+    {
+      label: 'アナログ時計',
+      type: 'checkbox',
+      checked: uiStore.clockType === 'analog',
+      onSelect() {
+        uiStore.clockType = 'analog';
+      }
+    }
+  ]
+]));
 
 const nextScheduleInfo = computed(() => {
-  const commandType = uiStore.nextScheduleCommandType;
-  const unixtime = uiStore.nextScheduleTime;
+  const commandType = serverStore.nextScheduleCommandType;
+  const unixtime = serverStore.nextScheduleTime;
 
   return (commandType !== undefined && unixtime !== undefined) ? {commandType, unixtime} : undefined;
 });
@@ -11,13 +33,15 @@ const nextScheduleInfo = computed(() => {
 
 <template>
   <div class="w-full min-h-dvh pt-50 pb-22 flex flex-col items-center">
-    <div class="fixed z-9999 top-0 p-4 w-full h-48 bg-(--ui-bg) flex justify-center items-center">
-      <RichClock
-        type="analog"
-        :timezone="uiStore.timezone"
-        :next-schedule-info="nextScheduleInfo"
-        @passed-next="uiStore.fetch"
-      />
+    <div class="fixed z-9999 top-0 p-4 w-full h-48 bg-(--ui-bg) flex justify-center items-center select-none">
+      <UContextMenu :items="clockContextMenu">
+        <RichClock
+          :type="uiStore.clockType"
+          :timezone="serverStore.timezone"
+          :next-schedule-info="nextScheduleInfo"
+          @passed-next="serverStore.fetch"
+        />
+      </UContextMenu>
     </div>
     <NuxtPage />
     <div class="fixed z-9999 bottom-0 p-4 w-full h-20 bg-(--ui-bg) flex justify-center items-center">
