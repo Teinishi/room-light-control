@@ -30,8 +30,8 @@ export const COMMAND_TYPES: {
   {
     type: 'light_adjust',
     label: '調光',
-    buttonColor: 'secondary',
-    buttonVariant: 'solid'
+    buttonColor: 'primary',
+    buttonVariant: 'subtle'
   },
   {
     type: 'light_night',
