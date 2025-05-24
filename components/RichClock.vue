@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const props = defineProps<{
+  type?: 'digital' | 'analog',
   timezone?: string,
   nextScheduleInfo?: {
     commandType: string,
@@ -10,7 +11,8 @@ const props = defineProps<{
 const emit = defineEmits(['passedNext']);
 
 const dateString = ref('');
-const time = ref('');
+const timeString = ref('');
+const time = ref({hour: 0, minute: 0, second: 0});
 const nextScheduleCountdown = ref('');
 const showNextSchedule = ref(false);
 
@@ -43,16 +45,20 @@ function animationFrame() {
     timeZone: props.timezone,
     weekday: 'short'
   });
-  time.value = now.toLocaleTimeString('en-US', {
+  timeString.value = now.toLocaleTimeString('en-US', {
     hour12: false,
     timeZone: timezone,
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
   });
+  time.value = {
+    hour: now.getHours(),
+    minute: now.getMinutes(),
+    second: now.getSeconds()
+  };
 
   if (props.nextScheduleInfo) {
-    const now = new Date();
     const sec = props.nextScheduleInfo.unixtime - Math.floor(now.getTime() / 1000);
     if (sec < 0 && showNextSchedule.value) {
       emit('passedNext');
@@ -91,10 +97,26 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="space-y-4">
+  <div v-if="type !== 'analog'" class="space-y-4">
     <div class="h-6 text-gray-500 text-center">{{ dateString }}</div>
-    <div class="text-6xl font-mono">{{ time }}</div>
+    <div class="text-6xl font-mono">{{ timeString }}</div>
     <div class="h-6 text-gray-500 flex justify-center gap-4">
+      <template v-if="nextScheduleInfo && showNextSchedule">
+        <UBadge :label="nextCommand?.label" :color="nextCommand?.buttonColor" />
+        <div>{{ nextScheduleCountdown }}</div>
+        <div>{{ nextScheduleText }}</div>
+      </template>
+    </div>
+  </div>
+  <div v-else class="h-full flex items-center gap-4">
+    <div class="w-24 text-gray-500 text-right">{{ dateString }}</div>
+    <AnalogClock
+      :hour="time.hour"
+      :minute="time.minute"
+      :second="time.second"
+      class="h-full aspect-auto"
+    />
+    <div class="w-24 text-gray-500 flex flex-col items-start gap-4">
       <template v-if="nextScheduleInfo && showNextSchedule">
         <UBadge :label="nextCommand?.label" :color="nextCommand?.buttonColor" />
         <div>{{ nextScheduleCountdown }}</div>

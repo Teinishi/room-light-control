@@ -13,6 +13,7 @@ const nextScheduleInfo = computed(() => {
   <div class="w-full min-h-dvh pt-50 pb-22 flex flex-col items-center">
     <div class="fixed z-9999 top-0 p-4 w-full h-48 bg-(--ui-bg) flex justify-center items-center">
       <RichClock
+        type="analog"
         :timezone="uiStore.timezone"
         :next-schedule-info="nextScheduleInfo"
         @passed-next="uiStore.fetch"
