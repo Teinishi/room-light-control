@@ -9,13 +9,23 @@ function refresh() {
   serverStore.fetch();
 }
 
-const timezone = computed(() => serverStore.timezone ?? '');
-
 const selectedDate = ref<DateValue | null>(null);
-
 const selectedDay = ref(-1);
 
-const getKey = (date: DateValue) => `${date.year.toString().padStart(4, '0')}-${date.month.toString().padStart(2, '0')}-${date.day.toString().padStart(2, '0')}`;
+const timezone = computed(() => serverStore.timezone ?? '');
+const holidayName = computed(() => {
+  const holidays = calendar.value?.holidays;
+  if (!selectedDate.value || !holidays) return '';
+  const name = holidays[getKey({
+      year: selectedDate.value.year,
+      month: selectedDate.value.month,
+      day: selectedDate.value.day
+    })];
+  return name ? `(${name})` : '';
+});
+
+const getKey = (date: {year: number, month: number, day: number}) =>
+  [date.year, date.month, date.day].map((v, i) => v.toString().padStart(i === 0 ? 4 : 2, '0')).join('-');
 
 function selectChanged(date: DateValue) {
   if (selectedDate.value !== null
@@ -43,7 +53,13 @@ function isDateDisabled(date: DateValue) {
   return year < tYear || year === tYear && (month < tMonth || month === tMonth && day < tDay);
 }
 
-const hasDateChip = (date: DateValue) => getKey(date) in (calendar.value?.overrideDays ?? {}) && !isDateDisabled(date);
+const chipColor = (date: DateValue) => {
+  if (isDateDisabled(date)) return undefined;
+  const key = getKey(date);
+  if (key in (calendar.value?.overrideDays ?? {})) return 'primary'
+  else if (key in (calendar.value?.holidays ?? {})) return 'error'
+  else return undefined;
+};
 
 async function updateOverrideDay(value: number) {
   if (selectedDate.value !== null) {
@@ -72,13 +88,13 @@ async function updateOverrideDay(value: number) {
       @update:model-value="selectChanged"
     >
       <template #day="{ day }">
-        <UChip :show="hasDateChip(day)">
+        <UChip :show="!!chipColor(day)" :color="chipColor(day)">
           {{ day.day }}
         </UChip>
       </template>
     </UCalendar>
     <div class="w-full space-y-1">
-      <div>曜日読み替え</div>
+      <div>曜日読み替え {{ holidayName }}</div>
       <WeekSelect v-model="selectedDay" @update:model-value="updateOverrideDay" />
     </div>
   </div>
