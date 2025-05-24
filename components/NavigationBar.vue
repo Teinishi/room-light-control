@@ -13,9 +13,9 @@ const items = ref<NavigationMenuItem[]>([
     to: '/schedules'
   },
   {
-    label: '設定',
-    icon: 'i-lucide-settings',
-    to: '/settings'
+    label: 'カレンダー',
+    icon: 'i-lucide-calendar',
+    to: '/calendar'
   }
 ]);
 </script>

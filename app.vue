@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { en, ja } from '@nuxt/ui/locale';
+
 useHead({
   htmlAttrs: {
     lang: 'ja'
@@ -6,14 +8,18 @@ useHead({
 });
 
 const serverStore = useServerStore();
-
 await callOnce(serverStore.fetch);
+
+const locale = ref(en);
+onMounted(() => {
+  locale.value = ja;
+});
 </script>
 
 <template>
   <NuxtRouteAnnouncer />
   <NuxtPwaManifest />
-  <UApp :toaster="{position: 'top-right'}">
+  <UApp :locale="locale" :toaster="{position: 'top-right'}">
     <NuxtLayout>
       <NuxtPage />
       <NavigationBar />

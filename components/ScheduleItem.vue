@@ -11,7 +11,6 @@ const props = defineProps<{
 
 const emit = defineEmits(['update:enabled', 'update:hour', 'update:minute', 'update:weekdays', 'update:commandType', 'delete']);
 
-
 const commandOptions = ref(COMMAND_TYPES.map(c => ({label: c.label, value: c.type})));
 const collapsibleOpen = ref(false);
 
@@ -30,16 +29,6 @@ const weekdayText = computed(() => {
 function changeTime({hour, minute}: {hour: number, minute: number}) {
   emit('update:hour', hour);
   emit('update:minute', minute);
-}
-
-function updateWeekday(i: number, selected: boolean) {
-  const s = new Set(props.weekdays);
-  if (selected) {
-    s.add(i);
-  } else {
-    s.delete(i);
-  }
-  emit('update:weekdays', [...s]);
 }
 </script>
 
@@ -79,18 +68,7 @@ function updateWeekday(i: number, selected: boolean) {
     <UCollapsible v-model:open="collapsibleOpen">
       <template #content>
         <div class="mt-4 w-full flex flex-col gap-4" @click.stop>
-          <div class="grid grid-cols-7 gap-1">
-            <UCheckbox
-              v-for="(name, index) in WEEKDAYS"
-              :key="index"
-              :label="name"
-              :model-value="weekdays.includes(index)"
-              indicator="hidden"
-              variant="card"
-              class="p-1 aspect-square flex items-center"
-              @update:model-value="v => updateWeekday(index, Boolean(v))"
-            />
-          </div>
+          <WeekSelect :model-value="props.weekdays" @update:model-value="v => emit('update:weekdays', v)" />
           <div class="flex gap-4 justify-end">
             <UButton
               icon="i-lucide-trash-2"
