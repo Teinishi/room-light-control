@@ -77,8 +77,8 @@ async function updateSchedule(id: number, patch: {
     <TransitionGroup
       enter-active-class="transition"
       leave-active-class="transition absolute"
-      enter-from-class="opacity-0 translate-y-10"
-      leave-to-class="opacity-0 -translate-y-10"
+      enter-from-class="opacity-0 translate-y-4"
+      leave-to-class="opacity-0 -translate-y-8"
       move-class="transition-transform"
     >
       <ScheduleItem

@@ -11,32 +11,8 @@ const props = defineProps<{
 
 const emit = defineEmits(['update:enabled', 'update:hour', 'update:minute', 'update:weekdays', 'update:commandType', 'delete']);
 
-const commandOptions = ref([
-  {
-    label: '明',
-    value: 'light_high'
-  },
-  {
-    label: '中',
-    value: 'light_medium'
-  },
-  {
-    label: '暗',
-    value: 'light_low'
-  },
-  {
-    label: '調光',
-    value: 'light_adjust'
-  },
-  {
-    label: '常夜灯',
-    value: 'light_night'
-  },
-  {
-    label: '消灯',
-    value: 'light_off'
-  },
-]);
+
+const commandOptions = ref(COMMAND_TYPES.map(c => ({label: c.label, value: c.type})));
 const collapsibleOpen = ref(false);
 
 const weekdayText = computed(() => {
@@ -70,7 +46,7 @@ function updateWeekday(i: number, selected: boolean) {
 <template>
   <UCard class="w-full" @click="collapsibleOpen = !collapsibleOpen">
     <div class="flex">
-      <div class="grow">
+      <div class="grow flex items-end">
         <TimePickerModal
           :default-hour="hour"
           :default-minute="minute"
@@ -78,6 +54,7 @@ function updateWeekday(i: number, selected: boolean) {
         >
           <span class="text-4xl" @click.stop>{{ hour }}:{{ minute.toString().padStart(2, '0') }}</span>
         </TimePickerModal>
+        <div class="ml-4">{{ weekdayText }}</div>
       </div>
       <div>
         <UButton
@@ -89,8 +66,13 @@ function updateWeekday(i: number, selected: boolean) {
         />
       </div>
     </div>
-    <div class="mt-4 h-6 flex items-center">
-      <div class="grow">{{ weekdayText }}</div>
+    <div class="mt-4 h-6 flex items-center gap-4">
+      <USelect
+        :items="commandOptions"
+        :model-value="commandType"
+        class="grow"
+        @update:model-value="v => emit('update:commandType', v)"
+      />
       <USwitch :model-value="enabled" @update:model-value="v => emit('update:enabled', v)" @click.stop />
     </div>
 
@@ -109,13 +91,7 @@ function updateWeekday(i: number, selected: boolean) {
               @update:model-value="v => updateWeekday(index, Boolean(v))"
             />
           </div>
-          <div class="flex gap-4">
-            <USelect
-             :items="commandOptions"
-             :model-value="commandType"
-             class="grow"
-             @update:model-value="v => emit('update:commandType', v)"
-            />
+          <div class="flex gap-4 justify-end">
             <UButton
               icon="i-lucide-trash-2"
               label="削除"
