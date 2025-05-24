@@ -43,7 +43,7 @@ function isDateDisabled(date: DateValue) {
   return year < tYear || year === tYear && (month < tMonth || month === tMonth && day < tDay);
 }
 
-const hasDateChip = (date: DateValue) => getKey(date) in (calendar.value?.overrideDays ?? {});
+const hasDateChip = (date: DateValue) => getKey(date) in (calendar.value?.overrideDays ?? {}) && !isDateDisabled(date);
 
 async function updateOverrideDay(value: number) {
   if (selectedDate.value !== null) {
