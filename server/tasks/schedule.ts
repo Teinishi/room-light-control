@@ -10,15 +10,16 @@ export default defineTask({
     const dayOfWeek = await getDay(now);
     (await getSchedules()).schedules.find(schedule => {
       if (
-        !schedule.enabled
-          || schedule.hour !== nowHour
-          || schedule.minute !== nowMinute
-          || !(schedule.weekdays.length === 0 || schedule.weekdays.includes(dayOfWeek))
+        schedule.enabled
+          && schedule.hour === nowHour
+          && schedule.minute === nowMinute
+          && (schedule.weekdays.length === 0 || schedule.weekdays.includes(dayOfWeek))
       ) {
+        executeCommand(schedule.commandType);
+        return true;
+      } else {
         return false;
       }
-      executeCommand(schedule.commandType);
-      return true;
     });
     return { result: 'Success' };
   }
