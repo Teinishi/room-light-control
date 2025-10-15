@@ -1,5 +1,5 @@
 {
-  "name": "nuxt-app",
+  "name": "room-light-control",
   "private": true,
   "type": "module",
   "scripts": {
@@ -26,6 +26,7 @@
     "vue-router": "^4.5.1"
   },
   "devDependencies": {
+    "@iconify-json/lucide": "^1.2.69",
     "@vite-pwa/assets-generator": "^1.0.0",
     "@vite-pwa/nuxt": "^1.0.1"
   }
