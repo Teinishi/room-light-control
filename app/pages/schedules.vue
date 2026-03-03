@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useServerStore } from '~/stores/server';
+
 const { data: schedules, refresh: refreshSchedules } = await useFetch('/api/schedules/list');
 
 const toast = useToast();
