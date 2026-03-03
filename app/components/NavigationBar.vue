@@ -8,6 +8,11 @@ const items = ref<NavigationMenuItem[]>([
     to: '/'
   },
   {
+    label: 'センサー',
+    icon: 'i-lucide-chart-line',
+    to: '/charts'
+  },
+  {
     label: '自動点灯',
     icon: 'i-lucide-alarm-clock',
     to: '/schedules'
