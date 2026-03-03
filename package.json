@@ -11,23 +11,23 @@
     "generate-pwa-assets": "pwa-assets-generator --preset minimal-2023 public/icon.svg"
   },
   "dependencies": {
-    "@holiday-jp/holiday_jp": "^2.4.0",
-    "@nuxt/eslint": "^1.4.0",
-    "@nuxt/icon": "^1.13.0",
-    "@nuxt/ui": "^3.1.2",
-    "@pinia/nuxt": "^0.11.0",
-    "eslint": "^9.27.0",
+    "@holiday-jp/holiday_jp": "^2.5.1",
+    "@nuxt/eslint": "^1.15.2",
+    "@nuxt/icon": "^2.2.1",
+    "@nuxt/ui": "^4.5.1",
+    "@pinia/nuxt": "^0.11.3",
+    "eslint": "^9.39.3",
     "lowdb": "^7.0.1",
-    "nuxt": "^3.17.3",
-    "pinia": "^3.0.2",
-    "pinia-plugin-persistedstate": "^4.3.0",
-    "typescript": "^5.8.3",
-    "vue": "^3.5.13",
-    "vue-router": "^4.5.1"
+    "nuxt": "^4.3.1",
+    "pinia": "^3.0.4",
+    "pinia-plugin-persistedstate": "^4.7.1",
+    "typescript": "^5.9.3",
+    "vue": "^3.5.13"
   },
   "devDependencies": {
-    "@iconify-json/lucide": "^1.2.69",
-    "@vite-pwa/assets-generator": "^1.0.0",
-    "@vite-pwa/nuxt": "^1.0.1"
+    "@iconify-json/lucide": "^1.2.95",
+    "@types/node": "^25.3.3",
+    "@vite-pwa/assets-generator": "^1.0.2",
+    "@vite-pwa/nuxt": "^1.1.1"
   }
 }

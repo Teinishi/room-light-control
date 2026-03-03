@@ -1,4 +1,4 @@
-import { scheduleItemSchemaCheck, updateSchedule } from "~/server/scheduleStore";
+import { scheduleItemSchemaCheck, updateSchedule } from "~~/server/scheduleStore";
 
 export default defineEventHandler(async event => {
   const id_s = getRouterParam(event, 'id');

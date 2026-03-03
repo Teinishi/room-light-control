@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { today, type DateValue } from '@internationalized/date';
+import { useServerStore } from '~/stores/server';
+
 const { data: calendar, refresh: refreshCalenders } = await useFetch('/api/calendar/list');
 
 const serverStore = useServerStore();

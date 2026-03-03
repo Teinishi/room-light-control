@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { en, ja } from '@nuxt/ui/locale';
+import { useServerStore } from '~/stores/server';
 
 useHead({
   htmlAttrs: {

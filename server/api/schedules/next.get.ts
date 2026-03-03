@@ -1,6 +1,5 @@
-import { getDay } from "~/server/calendarStore";
-import type { ScheduleItemSchema } from "~/server/scheduleStore";
-import { getSchedules } from "~/server/scheduleStore";
+import { getDay } from "~~/server/calendarStore";
+import { type ScheduleItemSchema, getSchedules } from "~~/server/scheduleStore";
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event);
