@@ -1,6 +1,6 @@
-import { getOverrideDays } from "~/server/calendarStore";
+import { getOverrideDays } from "~~/server/calendarStore";
 import holiday_jp from "@holiday-jp/holiday_jp";
-import { dateString } from "~/utils";
+import { dateString } from "~~/server/utils";
 
 export default defineEventHandler(async () => {
   const today = new Date();

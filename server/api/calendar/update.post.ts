@@ -1,4 +1,4 @@
-import { updateOverrideDay } from "~/server/calendarStore";
+import { updateOverrideDay } from "~~/server/calendarStore";
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);

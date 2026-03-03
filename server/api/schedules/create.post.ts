@@ -1,4 +1,4 @@
-import { addSchedule, scheduleItemSchemaCheck } from "~/server/scheduleStore";
+import { addSchedule, scheduleItemSchemaCheck } from "~~/server/scheduleStore";
 
 export default defineEventHandler(async (event) => {
   const {schedule} = await readBody(event);
