@@ -1,8 +1,7 @@
 import { z } from 'zod';
 import { toISO } from '~~/server/utils';
 import { useSensorDB } from '~~/server/utils/db';
-
-type Interval = '5m' | '1h' | '1d';
+import { type Interval, parseInterval, ceilDate } from '~~/shared/utils/date';
 
 const MAX_POINTS = 5000;
 
@@ -10,20 +9,7 @@ const querySchema = z.object({
   from: z.iso.datetime(),
   to: z.iso.datetime(),
   interval: z.enum(['5m', '1h', '1d']).default('5m')
-})
-
-function parseInterval(interval: Interval) {
-  switch (interval) {
-    case '5m':
-      return { minutes: 5, sqliteFormat: '%Y-%m-%dT%H:%M:00Z' };
-    case '1h':
-      return { minutes: 60, sqliteFormat: '%Y-%m-%dT%H:00:00Z' };
-    case '1d':
-      return { minutes: 1440, sqliteFormat: '%Y-%m-%dT00:00:00Z' };
-    default:
-      throw new Error('Invalid interval');
-  }
-}
+});
 
 export default defineEventHandler((event) => {
   const parsed = querySchema.safeParse(getQuery(event));
@@ -43,15 +29,24 @@ export default defineEventHandler((event) => {
     });
   }
 
+  const interval = (parsed.data.interval as Interval) || '5m';
+  const { millisecs, sqliteFormat } = parseInterval(interval);
   const from = new Date(parsed.data.from as string);
   const to = new Date(parsed.data.to as string);
-  const interval = (parsed.data.interval as Interval) || '5m';
+  const from_t = ceilDate(from, interval);
+  const to_t = to.getTime();
 
-  if (isNaN(from.getTime()) || isNaN(to.getTime())) {
+  if (isNaN(from_t) || isNaN(to_t) || to_t < from_t) {
     throw createError({ statusCode: 400, statusMessage: 'Invalid date' });
   }
 
-  const { sqliteFormat } = parseInterval(interval);
+  const n = Math.floor((to_t - from_t) / millisecs);
+  if (n > MAX_POINTS) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Too many data points'
+    });
+  }
 
   const db = useSensorDB();
   const stmt = db.prepare(`
@@ -63,13 +58,17 @@ export default defineEventHandler((event) => {
     WHERE timestamp BETWEEN ? AND ?
     GROUP BY t
     ORDER BY t
-    LIMIT ?
   `);
-  const rows = stmt.all(toISO(from), toISO(to), MAX_POINTS + 1);
-  if (rows.length > MAX_POINTS) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Too many data points'
+  const rows = stmt.all(toISO(from), toISO(to));
+  const data_map = new Map(rows.map(v => [new Date(v.t as string).getTime(), v]));
+
+  const data = [];
+  for (let t = from_t; t < to_t; t += millisecs) {
+    const v = data_map.get(t);
+    data.push({
+      t: toISO(new Date(t)),
+      temperature: v?.temperature,
+      humidity: v?.humidity
     });
   }
 
@@ -77,6 +76,6 @@ export default defineEventHandler((event) => {
     from: toISO(from),
     to: toISO(to),
     interval,
-    data: rows
+    data
   };
 });
