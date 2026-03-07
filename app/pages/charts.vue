@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import { CalendarDate, CalendarDateTime } from '@internationalized/date'
 import ButtonSelect from '~/components/ButtonSelect.vue';
 import { round } from '~/utils';
 import { type Interval, ceilDate } from '~~/shared/utils/date';
+
+type RangeOption = '24h' | '7d' | '31d' | 'custom';
 
 interface APISensor {
   from: string,
@@ -20,37 +23,76 @@ interface SensorDataItem {
   humidity: number;
 }
 
-const range: Ref<'24h' | '7d' | '31d'> = ref('24h');
-const query_interval = computed(() => range.value === '24h' ? '5m' : '1h');
-const to_t = ref(ceilDate(new Date(), query_interval.value));
-const from_t = computed(() => {
-  const d = new Date(to_t.value);
-  switch (range.value) {
-    case '24h':
-      d.setHours(d.getHours() - 24);
-      break;
-    case '7d':
-      d.setDate(d.getDate() - 7);
-      break;
-    case '31d':
-      d.setDate(d.getDate() - 31);
-      break;
-  }
-  return ceilDate(d, query_interval.value);
+const ONE_HOUR = 60*60*1000;
+const ONE_DAY = 24*ONE_HOUR;
+
+const now = new Date();
+
+const rangeOption: Ref<RangeOption> = ref('24h');
+const calendarRange = shallowRef({
+  start: new CalendarDate(now.getFullYear(), now.getMonth() + 1, now.getDate()),
+  end: new CalendarDate(now.getFullYear(), now.getMonth() + 1, now.getDate()),
+});
+const dateRange = ref({
+  start: new Date(now),
+  end: new Date(now)
 });
 
-const query_from = computed(() => toISO(new Date(from_t.value)));
-const query_to = computed(() => toISO(new Date(to_t.value)));
+function updateDateRange(value?: { start?: CalendarDate, end?: CalendarDate }) {
+  if (value !== undefined && value.start !== undefined && value.end !== undefined && rangeOption.value === 'custom') {
+    dateRange.value = {
+      start: value.start.toDate('Asia/Tokyo'),
+      end: value.end.add({ days: 1 }).toDate('Asia/Tokyo')
+    };
+  }
+}
+
+function updateRangeOption(value: RangeOption) {
+  if (value === 'custom') {
+    updateDateRange(calendarRange.value);
+  } else {
+    const now = new Date();
+    let d;
+    switch (value) {
+      case '24h':
+        d = ONE_DAY;
+        break;
+      case '7d':
+        d = 7*ONE_DAY;
+        break;
+      case '31d':
+        d = 31*ONE_DAY;
+        break;
+    }
+    dateRange.value = {
+      start: new Date(now.getTime() - d),
+      end: new Date(now)
+    }
+  }
+}
+updateRangeOption(rangeOption.value);
+
+const interval = computed(() => {
+  const d = dateRange.value.end.getTime() - dateRange.value.start.getTime();
+  if (d <= ONE_DAY) {
+    return '5m';
+  } else {
+    return '1h';
+  }
+});
+
+const queryFrom = computed(() => toISO(new Date(ceilDate(dateRange.value.start, interval.value))));
+const queryTo = computed(() => toISO(new Date(ceilDate(dateRange.value.end, interval.value) + parseInterval(interval.value).millisecs)));
 
 const { data: res, pending, refresh } = await useFetch<APISensor>('/api/sensor', {
   query: {
-    from: query_from,
-    to: query_to,
-    interval: query_interval
+    from: queryFrom,
+    to: queryTo,
+    interval: interval
   }
 });
 
-const sensor_data: ComputedRef<SensorDataItem[] | undefined> = computed(() =>
+const sensorData: ComputedRef<SensorDataItem[] | undefined> = computed(() =>
   res.value?.data.map(({t, temperature, humidity}) => ({
     t: Date.parse(t),
     temperature: round(temperature, 1),
@@ -86,11 +128,11 @@ const dateTimeFormat = new Intl.DateTimeFormat('ja-JP', {
 });
 
 const xFormatter = (tick: number, i?: number | undefined, ticks?: number[] | undefined) => {
-  const t = sensor_data.value && sensor_data.value[tick]?.t;
+  const t = sensorData.value && sensorData.value[tick]?.t;
   if (t === undefined) {
     return '';
   }
-  if (query_interval.value === '5m') {
+  if (interval.value === '5m') {
     return timeFormat.format(new Date(t));
   } else {
     return dateFormat.format(new Date(t));
@@ -98,38 +140,49 @@ const xFormatter = (tick: number, i?: number | undefined, ticks?: number[] | und
 };
 const tooltipTitleFormatter = (data: SensorDataItem) => dateTimeFormat.format(new Date(data.t));
 
-const xExplicitTicks = computed(() => sensor_data.value?.flatMap((v, i)=> {
-  const d = new Date(v.t + 9*60*60*1000);
-  let f = d.getUTCMinutes() === 0 && d.getUTCSeconds() === 0 && d.getUTCMilliseconds() === 0;
-  switch (res.value?.interval) {
-    case '5m':
-      f &&= d.getHours() % 3 === 0;
-      break;
-    case '1h':
-      f &&= d.getUTCHours() === 0;
-      break;
-    case '1d':
-      f &&= d.getDay() === 0 && d.getUTCHours() === 0;
-      break;
+const xExplicitTicks = computed(() => {
+  if (res.value === undefined) {
+    return [];
   }
-  return f ? [i] : [];
-}));
+  const duration = new Date(res.value.to).getTime() - new Date(res.value.from).getTime();
+
+  return sensorData.value?.flatMap((v, i)=> {
+    const d = new Date(v.t);
+    let f = d.getMinutes() === 0 && d.getSeconds() === 0 && d.getMilliseconds() === 0;
+    if (duration > 14*ONE_DAY) {
+      f &&= d.getDay() === 0 && d.getHours() === 0;
+    } else if (duration > 2*ONE_DAY) {
+      f &&= d.getHours() === 0;
+    } else if (duration > 12*ONE_HOUR) {
+      f &&= d.getHours() % 3 === 0;
+    }
+    return f ? [i] : [];
+  });
+});
 </script>
 
 <template>
-  <div class="w-full max-w-xl flex flex-col gap-4 items-center">
+  <div class="w-full max-w-xl px-4 flex flex-col gap-4 items-center">
     <ButtonSelect
-      v-model="range"
+      v-model="rangeOption"
+      @update:modelValue="updateRangeOption"
       :options="[
         { value: '24h', label: '日' },
         { value: '7d', label: '週' },
-        { value: '31d', label: '月' }
+        { value: '31d', label: '月' },
+        { value: 'custom', label: 'カスタム' }
       ]"
+    />
+    <InputDateRange
+      v-model="calendarRange"
+      @update:modelValue="updateDateRange"
+      :disabled="rangeOption !== 'custom'"
+      :style="{ 'visibility': rangeOption === 'custom' ? 'visible' : 'hidden' }"
     />
     <client-only>
       <LineChart
-        v-if="sensor_data !== undefined"
-        :data="sensor_data"
+        v-if="sensorData !== undefined"
+        :data="sensorData"
         :categories="categoriesTemperature"
         :height="240"
         yLabel="気温"
@@ -152,8 +205,8 @@ const xExplicitTicks = computed(() => sensor_data.value?.flatMap((v, i)=> {
         class="w-full"
       />
       <LineChart
-        v-if="sensor_data !== undefined"
-        :data="sensor_data"
+        v-if="sensorData !== undefined"
+        :data="sensorData"
         :categories="categoriesHumidity"
         :height="240"
         yLabel="湿度"
