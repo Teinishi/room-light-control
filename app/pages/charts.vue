@@ -102,12 +102,14 @@ const sensorData: ComputedRef<SensorDataItem[] | undefined> = computed(() =>
 
 const categoriesTemperature = {
   temperature: {
-    name: '室内気温'
+    name: '室内気温',
+    color: 'var(--color-primary)'
   }
 };
 const categoriesHumidity = {
   humidity: {
-    name: '室内湿度'
+    name: '室内湿度',
+    color: 'var(--color-primary)'
   }
 };
 
@@ -179,55 +181,67 @@ const xExplicitTicks = computed(() => {
       :disabled="rangeOption !== 'custom'"
       :style="{ 'visibility': rangeOption === 'custom' ? 'visible' : 'hidden' }"
     />
-    <client-only>
-      <LineChart
-        v-if="sensorData !== undefined"
-        :data="sensorData"
-        :categories="categoriesTemperature"
-        :height="240"
-        yLabel="気温"
-        :padding="{ top: 16, right: 0, bottom: 16, left: 0 }"
-        :yDomain="[10, 40]"
-        :xFormatter="xFormatter"
-        :yFormatter="(y: number) => `${y}℃`"
-        :xExplicitTicks="xExplicitTicks"
-        :yExplicitTicks="[10, 20, 30, 40]"
-        :curveType="CurveType.Linear"
-        xDomainLine
-        yDomainLine
-        xTickLine
-        yTickLine
-        xGridLine
-        yGridLine
-        :legendPosition="LegendPosition.TopRight"
-        :tooltipTitleFormatter="tooltipTitleFormatter"
-        :duration="0"
-        class="w-full"
-      />
-      <LineChart
-        v-if="sensorData !== undefined"
-        :data="sensorData"
-        :categories="categoriesHumidity"
-        :height="240"
-        yLabel="湿度"
-        :padding="{ top: 0, right: 0, bottom: 0, left: 0 }"
-        :yDomain="[0, 100]"
-        :xFormatter="xFormatter"
-        :yFormatter="(y: number) => `${y}%`"
-        :xExplicitTicks="xExplicitTicks"
-        :yExplicitTicks="[0, 20, 40, 60, 80, 100]"
-        :curveType="CurveType.Linear"
-        xDomainLine
-        yDomainLine
-        xTickLine
-        yTickLine
-        xGridLine
-        yGridLine
-        :legendPosition="LegendPosition.TopRight"
-        :tooltipTitleFormatter="tooltipTitleFormatter"
-        :duration="0"
-        class="w-full"
-      />
-    </client-only>
+    <UCard class="w-full">
+      <template #header>
+        <h5 class="text-xl font-semibold text-heading">気温</h5>
+      </template>
+      <client-only>
+        <LineChart
+          v-if="sensorData !== undefined"
+          :data="sensorData"
+          :categories="categoriesTemperature"
+          :height="200"
+          :padding="{ top: 16, right: 0, bottom: 16, left: 0 }"
+          :yDomain="[10, 40]"
+          :xFormatter="xFormatter"
+          :yFormatter="(y: number) => `${y}℃`"
+          :xExplicitTicks="xExplicitTicks"
+          :yExplicitTicks="[10, 20, 30, 40]"
+          :curveType="CurveType.Linear"
+          xDomainLine
+          yDomainLine
+          xTickLine
+          yTickLine
+          xGridLine
+          yGridLine
+          hideLegend
+          hideTooltip
+          :tooltipTitleFormatter="tooltipTitleFormatter"
+          :duration="0"
+          class="w-full text-neutral-950"
+        />
+      </client-only>
+    </UCard>
+    <UCard class="w-full">
+      <template #header>
+        <h5 class="text-xl font-semibold text-heading">湿度</h5>
+      </template>
+      <client-only>
+        <LineChart
+          v-if="sensorData !== undefined"
+          :data="sensorData"
+          :categories="categoriesHumidity"
+          :height="200"
+          :padding="{ top: 0, right: 0, bottom: 0, left: 0 }"
+          :yDomain="[0, 100]"
+          :xFormatter="xFormatter"
+          :yFormatter="(y: number) => `${y}%`"
+          :xExplicitTicks="xExplicitTicks"
+          :yExplicitTicks="[0, 20, 40, 60, 80, 100]"
+          :curveType="CurveType.Linear"
+          xDomainLine
+          yDomainLine
+          xTickLine
+          yTickLine
+          xGridLine
+          yGridLine
+          hideLegend
+          hideTooltip
+          :tooltipTitleFormatter="tooltipTitleFormatter"
+          :duration="0"
+          class="w-full"
+        />
+      </client-only>
+    </Ucard>
   </div>
 </template>

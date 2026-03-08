@@ -37,7 +37,7 @@ export const COMMAND_TYPES: {
     type: 'light_night',
     label: '常夜灯',
     buttonColor: 'neutral',
-    buttonVariant: 'soft'
+    buttonVariant: 'subtle'
   },
   {
     type: 'light_off',
