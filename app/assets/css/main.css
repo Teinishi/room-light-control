@@ -1,2 +1,30 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
+
+@theme static {
+  --color-azure-50: #f5f7fa;
+  --color-azure-100: #eaeef4;
+  --color-azure-200: #d0dae7;
+  --color-azure-300: #a6bad3;
+  --color-azure-400: #7695ba;
+  --color-azure-500: #5478a3;
+  --color-azure-600: #3f5c83;
+  --color-azure-700: #364d6e;
+  --color-azure-800: #2f425d;
+  --color-azure-900: #2b3a4f;
+  --color-azure-950: #1d2634;
+
+  --color-primary: var(--color-azure-600);
+  --color-secondary: var(--color-blue-500);
+}
+
+@variant dark {
+  --color-primary: var(--color-azure-300);
+
+  --ui-bg: var(--color-azure-950);
+}
+
+.dark {
+  --vis-axis-tick-color: var(--color-neutral-600) !important;
+  --vis-axis-grid-color: var(--color-neutral-600) !important;
+}

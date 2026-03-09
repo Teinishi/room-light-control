@@ -5,7 +5,7 @@ export default defineNuxtConfig({
   devServer: {
     host: '0.0.0.0'
   },
-  modules: ['@nuxt/eslint', '@nuxt/icon', '@nuxt/ui', '@vite-pwa/nuxt', '@pinia/nuxt', 'pinia-plugin-persistedstate/nuxt'],
+  modules: ['@nuxt/eslint', '@nuxt/icon', '@nuxt/ui', '@vite-pwa/nuxt', '@pinia/nuxt', 'pinia-plugin-persistedstate/nuxt', 'nuxt-charts'],
   nitro: {
     experimental: { tasks: true },
     storage: {
